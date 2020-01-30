@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PostgreSQL</title>
+</head>
+<body>
+    <ul>
+        <b>Id Imię: Miasto, Ulica, Nr domu</b><br><br>
+        {% for element in db_data %}
+        <li>
+            {{ element[0] }}  {{ element[1] }}: {{ element[4] }}, {{ element[5] }} {{ element[6] }}
+        </li>
+        {% endfor %}
+    </ul>
+    <br>
+    <form method="POST">
+        <p>
+            <b>Wprowadź customer_id:</b><input type='number' name='customer_id'>
+        </p>
+        <p>
+            Wprowadź miasto:<input type='text' name='city'><br>
+            Wprowadź ulicę:<input type='text' name='street'><br>
+            Wprowadź numer domu:<input type='number' name='house_number'><br>
+        </p>
+        <p>
+            <input type="submit" name="action" value="Dodaj">
+            <input type="submit" name="action" value="Usuń">
+            <input type="submit" name="action" value="Zmień">
+        </p>
+    </form>
+    <br>
+</body>
+</html>
