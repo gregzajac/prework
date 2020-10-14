@@ -1,5 +1,5 @@
 from flask import Response, jsonify
-from library_app import app
+from library_app import app, db
 
 
 class ErrorResponse:
@@ -24,13 +24,19 @@ def not_found_error(err):
 
 @app.errorhandler(400)
 def bad_request_error(err):
-    print(f'wykonywana jest funkcja bad_request_error: {err}')
-    print(err.data)
+    print(f'wykonywana jest funkcja bad_request_error')
     messages = err.data.get('messages', {}).get('json', {})
     return ErrorResponse(messages, 400).to_response()
 
 
 @app.errorhandler(415)
 def unsupported_media_type_error(err):
-    print(f'wykonywana jest funkcja not_found_error: {err}')
+    print(f'wykonywana jest funkcja not_found_error')
     return ErrorResponse(err.description, 415).to_response()
+
+
+@app.errorhandler(500)
+def internal_server_error(err):
+    print(f'wykonywana jest funkcja internal_server_error')
+    db.session.rolback()
+    return ErrorResponse(err.description, 500).to_response()
