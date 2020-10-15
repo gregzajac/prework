@@ -10,15 +10,18 @@ def get_authors():
     query = Author.query
     schema_args = Author.get_schema_args(request.args.get('fields'))
     query = Author.apply_order(query, request.args.get('sort'))
-    query = Author.apply_filter(query, request.args)
-    authors = query.all()
-    author_schema = AuthorSchema(**schema_args)
+    query = Author.apply_filter(query)
+    items, pagination = Author.get_pagination(query)
+    
+    authors = AuthorSchema(**schema_args).dump(items)
     
     return jsonify({
         'success': True,
-        'data': author_schema.dump(authors),
-        'number_of_records': len(authors)
+        'data': authors,
+        'number_of_records': len(authors),
+        'pagination': pagination
     })
+
 
 
 @app.route('/api/v1/authors/<int:author_id>', methods = ['GET'])
@@ -38,13 +41,6 @@ def create_author(args: dict):
     author = Author(**args)
     db.session.add(author)
     db.session.commit()
-
-    # data = request.get_json()
-    # first_name = data.get('first_name')
-    # last_name = data.get('last_name')
-    # birth_date = data.get('birth_date')
-    # author = Author(first_name=first_name, last_name=last_name, birth_date=birth_date)
-    # print(author)
 
     return jsonify({
         'success': True,
