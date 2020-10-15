@@ -5,7 +5,6 @@ from flask_sqlalchemy import BaseQuery
 from library_app import db, Config
 from datetime import datetime
 from marshmallow import Schema, fields, validate, validates, ValidationError
-# from werkzeug.datastructures import ImmutableMultiDict
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import BinaryExpression
 
@@ -82,13 +81,13 @@ class Author(db.Model):
         pagination = {
             'total_pages': paginate_object.pages,
             'total_records': paginate_object.total,
-            'current_page': url_for('get_authors', page=page, **params)
+            'current_page': url_for('authors.get_authors', page=page, **params)
         }
 
         if paginate_object.has_next:
-            pagination['next_page'] = url_for('get_authors', page=page+1, **params)
+            pagination['next_page'] = url_for('authors.get_authors', page=page+1, **params)
         if paginate_object.has_prev:
-            pagination['previous_page'] = url_for('get_authors', page=page-1, **params)
+            pagination['previous_page'] = url_for('authors.get_authors', page=page-1, **params)
         
         return paginate_object.items, pagination
 
