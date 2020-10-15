@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from webargs.flaskparser import use_args
 from library_app import app, db
 from library_app.models import Author, AuthorSchema, author_schema
@@ -7,8 +7,12 @@ from library_app.utils import validate_json_content_type
 
 @app.route('/api/v1/authors', methods = ['GET'])
 def get_authors():
-    authors = Author.query.all()
-    author_schema = AuthorSchema(many=True)
+    query = Author.query
+    schema_args = Author.get_schema_args(request.args.get('fields'))
+    query = Author.apply_order(query, request.args.get('sort'))
+    query = Author.apply_filter(query, request.args)
+    authors = query.all()
+    author_schema = AuthorSchema(**schema_args)
     
     return jsonify({
         'success': True,
@@ -71,7 +75,7 @@ def delete_author(author_id):
 
     db.session.delete(author)
     db.session.commit()
-    
+
     return jsonify({
         'success': True,
         'data': f'Author with id {author_id} has been deleted'
