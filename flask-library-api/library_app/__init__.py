@@ -4,21 +4,29 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 
-app = Flask(__name__)
-app.config.from_object(Config)
+db = SQLAlchemy()
+migrate = Migrate()
 
-# @app.route('/')
-# def index():
-#     return 'Flask is working'
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+def create_app(config_class=Config):
+    app = Flask(__name__)
+    app.config.from_object(config_class)
+    
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    from library_app.commands import db_manage_bp
+    from library_app.errors import errors_bp
+    from library_app.authors import authors_bp
+    app.register_blueprint(db_manage_bp)
+    app.register_blueprint(errors_bp)
+    app.register_blueprint(authors_bp, url_prefix='/api/v1')
+
+    return app
+
+
+
 
 # results = db.session.execute('show databases')
 # for row in results:
 #     print(row)
-
-from library_app import authors
-from library_app import models
-from library_app import db_manage_commands
-from library_app import errors
