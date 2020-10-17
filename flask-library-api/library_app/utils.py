@@ -6,6 +6,7 @@ from typing import Tuple
 from flask_sqlalchemy import DefaultMeta, BaseQuery
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import BinaryExpression
+
 from library_app import Config
 
 
@@ -73,8 +74,8 @@ def apply_filter(model: DefaultMeta, query: BaseQuery) -> BaseQuery:
 
 
 def get_pagination(query: BaseQuery, func_name: str) -> Tuple[list, dict]:
-    page = request.args.get('page', 1, type = int)
-    limit = request.args.get('limit', current_app.config.get('PER_PAGE', 5), type = int)
+    page = request.args.get('page', 1, type=int)
+    limit = request.args.get('limit', current_app.config.get('PER_PAGE', 5), type=int)
     params = {key: value for key, value in request.args.items() if key != 'page'}
     paginate_object = query.paginate(page, limit, False)
 
