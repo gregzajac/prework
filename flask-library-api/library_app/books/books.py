@@ -35,20 +35,6 @@ def get_book(book_id: int):
     })
 
 
-@books_bp.route('/books', methods=['POST'])
-@validate_json_content_type
-@use_args(book_schema, error_status_code=400)
-def create_book(args: dict):
-    book = Book(**args)
-    db.session.add(book)
-    db.session.commit()
-
-    return jsonify({
-        'success': True,
-        'data': book_schema.dump(book)
-    })
-
-
 @books_bp.route('/books/<int:book_id>', methods=['PUT'])
 @validate_json_content_type
 @use_args(book_schema, error_status_code=400)
@@ -82,5 +68,47 @@ def update_book(args: dict, book_id: int):
 
 @books_bp.route('/books/<int:book_id>', methods=['DELETE'])
 def delete_book(book_id):
-    return f'delete book with id: {book_id}'
+    book = Book.query.get_or_404(book_id, description=f'Book with id {book_id} not found')
 
+    db.session.delete(book)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'data': f'Book with id {book_id} has been deleted'
+    })
+
+
+@books_bp.route('/authors/<int:author_id>/books', methods=['GET'])
+def get_all_author_books(author_id: int):
+    Author.query.get_or_404(author_id, description=f'Author with id {author_id} not found')
+    books = Book.query.filter(Book.author_id == author_id).all()
+
+    items = BookSchema(many=True, exclude=['author']).dump(books)
+
+    return jsonify({
+        'success': True,
+        'data': items,
+        'number_of_records': len(items)
+    })
+
+
+@books_bp.route('/authors/<int:author_id>/books', methods=['POST'])
+@validate_json_content_type
+@use_args(BookSchema(exclude=['author_id']), error_status_code=400)
+def create_book(args: dict, author_id: int):
+    Author.query.get_or_404(author_id, description=f'Author with id {author_id} not found')
+
+    book_with_this_isbn = Book.query.filter(Book.isbn == args['isbn']).first()
+    if book_with_this_isbn is not None:
+        abort(409, description=f'Book with ISBN {args["isbn"]} already exists')
+
+    book = Book(author_id=author_id, **args)
+
+    db.session.add(book)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'data': book_schema.dump(book)
+    }), 201
