@@ -14,3 +14,4 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PER_PAGE = 5  #domyślna paginacja
+    JWT_EXPIRED_MINUTES = 30  #token JWT wygaśnie po 30 minutach
