@@ -102,9 +102,15 @@ class UserSchema(Schema):
     username = fields.String(required=True, validate=validate.Length(max=255))
     email = fields.Email(required=True)
     password = fields.String(required=True, load_only=True, validate=validate.Length(min=6, max=255))
-    creation_date = fields.DateTime(dump_only=True)
+    created_date = fields.DateTime(dump_only=True)
+
+
+class UserPasswordUpdateShema(Schema):
+    current_password = fields.String(required=True, load_only=True, validate=validate.Length(min=6, max=255))
+    new_password = fields.String(required=True, load_only=True, validate=validate.Length(min=6, max=255))
 
 
 author_schema = AuthorSchema()
 book_schema = BookSchema()
 user_schema = UserSchema()
+user_password_update_schema = UserPasswordUpdateShema()
