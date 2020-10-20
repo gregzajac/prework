@@ -8,8 +8,6 @@ from flask_sqlalchemy import DefaultMeta, BaseQuery
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import BinaryExpression
 
-from library_app import Config
-
 
 COMPARISON_OPERATORS_RE = re.compile(r'(.*)\[(gte|gt|lte|lt)\]')
 
