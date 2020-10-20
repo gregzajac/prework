@@ -55,3 +55,13 @@ def author():
         'last_name': 'Z',
         'birth_date': '22-11-1977'
     }
+
+
+@pytest.fixture
+def book():
+    return {
+        'title': 'testbook',
+        'isbn': 1212121212121,
+        'number_of_pages': 100,
+        'description': 'testdescription'
+    }
