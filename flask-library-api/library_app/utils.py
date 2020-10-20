@@ -33,7 +33,7 @@ def token_required(func):
             abort(401, description='Missing token. Please login or register.')
         
         try:
-            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
+            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
             abort(401, description='Expired token. Please login to get new token.')
         except jwt.InvalidTokenError:
