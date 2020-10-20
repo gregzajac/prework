@@ -1,3 +1,4 @@
+import pytest
 
 
 def test_get_authors_no_records(client):
@@ -70,7 +71,7 @@ def test_get_single_author(client, sample_data):
     assert len(response_data['data']['books']) == 1
 
 
-def test_get_single_author_not_found(client, sample_data):
+def test_get_single_author_not_found(client):
     response = client.get('/api/v1/authors/90')
     response_data = response.get_json()
 
@@ -79,3 +80,82 @@ def test_get_single_author_not_found(client, sample_data):
     assert response_data['success'] is False
     assert 'data' not in response_data
 
+
+def test_create_author(client, token, author):
+    response = client.post('/api/v1/authors', 
+                            json=author,
+                            headers={
+                                'Authorization': f'Bearer {token}'
+                            })
+    response_data = response.get_json()
+    expected_result = {
+        "data": {
+            **author,
+            "books": [],
+            "id": 1
+        },
+        "success": True
+    }
+
+    assert response.status_code == 201
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data == expected_result
+
+    response = client.get('/api/v1/authors/1')
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data == expected_result
+
+
+@pytest.mark.parametrize(
+    'data,missing_field',
+    [
+        ({'last_name': 'Z', 'birth_date': '22-11-1977'}, 'first_name'),
+        ({'first_name': 'G', 'birth_date': '22-11-1977'}, 'last_name'),
+        ({'first_name': 'G', 'last_name': 'Z'}, 'birth_date'),
+    ]
+)
+def test_create_author_missing_field(client, token, data, missing_field):
+    response = client.post('/api/v1/authors',
+                            json=data,
+                            headers={
+                                'Authorization': f'Bearer {token}'
+                            })
+
+    response_data = response.get_json()
+    
+    assert response.status_code == 400        
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'data' not in response_data
+    assert missing_field in response_data['message']
+    assert 'Missing data for required field.' in response_data['message'][missing_field]
+
+
+def test_create_author_invalid_content_type(client, token, author):
+    response = client.post('/api/v1/authors',
+                            data=author,
+                            headers={
+                                'Authorization': f'Bearer {token}'
+                            })
+
+    response_data = response.get_json()
+    
+    assert response.status_code == 415        
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'data' not in response_data
+
+
+def test_create_author_missing_token(client, author):
+    response = client.post('/api/v1/authors',
+                            json=author)
+
+    response_data = response.get_json()
+    
+    assert response.status_code == 401       
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'data' not in response_data

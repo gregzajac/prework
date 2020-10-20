@@ -46,3 +46,12 @@ def token(client, user):
 def sample_data(app):
     runner = app.test_cli_runner()
     runner.invoke(add_data)
+
+
+@pytest.fixture
+def author():
+    return {
+        'first_name': 'G',
+        'last_name': 'Z',
+        'birth_date': '22-11-1977'
+    }
