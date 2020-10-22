@@ -12,6 +12,9 @@ db.sqlite3-journal
 *.iml
 media
 lib/
+library_app.zip
+.pytest_cache/
+.vscode/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
