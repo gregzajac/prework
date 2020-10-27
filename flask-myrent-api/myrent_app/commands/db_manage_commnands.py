@@ -23,7 +23,7 @@ def add_data():
     try:
         data_json = load_json_data('landlords.json')
         for item in data_json:
-            item['password'] =Landlord.generate_password_hash(item['password'])
+            item['password'] = Landlord.generate_hashed_password(item['password'])
             landlord = Landlord(**item)
             db.session.add(landlord)
         

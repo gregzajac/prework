@@ -24,6 +24,7 @@ class TestingConfig(Config):
     DEBUG = True
     TESTING = True
 
+
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig
