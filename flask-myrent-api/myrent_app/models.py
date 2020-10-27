@@ -1,8 +1,9 @@
 import jwt
+from flask import current_app
 from datetime import datetime, timedelta
 from marshmallow import Schema, fields, validate
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db, app
+from myrent_app import db
 
 
 class TimestampMixin(object):
@@ -35,7 +36,7 @@ class Landlord(TimestampMixin, db.Model):
             'model': 'landlords',
             'exp': datetime.utcnow() + timedelta(minutes=30)
         }
-        return jwt.encode(payload, app.config.get('SECRET_KEY'))
+        return jwt.encode(payload, current_app.config.get('SECRET_KEY'))
 
     def is_password_valid(self, password: str) -> bool:
         return check_password_hash(self.password, password)  

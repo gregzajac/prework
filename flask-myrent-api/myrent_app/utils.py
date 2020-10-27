@@ -1,8 +1,8 @@
 import jwt
 from functools import wraps
-from flask import request, abort
+from flask import request, abort, current_app
 from werkzeug.exceptions import UnsupportedMediaType
-from . import app
+# from myrent_app import app
 
 
 def validate_json_content_type(func):
@@ -26,7 +26,7 @@ def token_landlord_required(func):
         if token is None:
             abort(401, description='Missing token. Please login or register.')
 
-        payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=['HS256'])
+        payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
 
         if payload['model'] != 'landlords':
             abort(401, description='Missing token. Please login or register.')
@@ -46,7 +46,7 @@ def token_required(func):
         if token is None:
             abort(401, description='Missing token. Please login or register.')
 
-        payload = jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=['HS256'])
+        payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
 
         return func(payload['identifier'], *args, **kwargs)
     return wrapper

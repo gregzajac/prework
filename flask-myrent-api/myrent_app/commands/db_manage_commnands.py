@@ -1,6 +1,7 @@
 import os, json
-from . import app, db
-from .models import Landlord
+from myrent_app import db
+from myrent_app.commands import db_manage_bp
+from myrent_app.models import Landlord
 
 
 def load_json_data(filename: str) -> list:
@@ -10,7 +11,7 @@ def load_json_data(filename: str) -> list:
     return data_json
 
 
-@app.cli.group()
+@db_manage_bp.cli.group()
 def db_manage():
     """Database management commands"""
     pass

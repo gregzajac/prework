@@ -1,10 +1,4 @@
-from myrent_app import app
+from myrent_app import create_app
 
-
-# @app.route('/')
-# def index():
-#     return 'Flask is running!!'
-
-# if __name__ == "__main__":
-#     app.run()
-
+app = create_app()
+# print(app.config['SQLALCHEMY_DATABASE_URI'])
