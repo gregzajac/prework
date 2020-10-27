@@ -1,6 +1,6 @@
 import os, json
-from myrent_app import app, db
-from myrent_app.models import Landlord
+from . import app, db
+from .models import Landlord
 
 
 def load_json_data(filename: str) -> list:

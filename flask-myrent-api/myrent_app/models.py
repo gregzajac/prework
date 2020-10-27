@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta
 from marshmallow import Schema, fields, validate
 from werkzeug.security import generate_password_hash, check_password_hash
-from myrent_app import db, app
+from . import db, app
 
 
 class TimestampMixin(object):

@@ -1,8 +1,8 @@
 from flask import jsonify, abort
 from webargs.flaskparser import use_args
-from myrent_app import app, db
-from myrent_app.models import Landlord, LandlordSchema, landlord_schema, landlord_update_password_schema
-from myrent_app.utils import validate_json_content_type, token_landlord_required
+from . import app, db
+from .models import Landlord, LandlordSchema, landlord_schema, landlord_update_password_schema
+from .utils import validate_json_content_type, token_landlord_required
 
 
 @app.route('/api/v1/landlords', methods=['GET'])
@@ -16,9 +16,12 @@ def get_all_landlords():
     })
 
 
-@app.route('/api/v1/landlords/<int:landlord_id>', methods=['GET'])
-def get_one_landlord(landlord_id: int):
-    landlord = Landlord.query.get_or_404(landlord_id, description=f'Landlord with id {landlord_id} not found')
+@app.route('/api/v1/landlords/<string:identifier>', methods=['GET'])
+def get_one_landlord(identifier: str):
+    landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
+
+    if landlord is None:
+        abort(404, description=f'Landlord with identifier {identifier} not found')
 
     return jsonify({
         'success': True,
@@ -62,7 +65,7 @@ def login(args: dict):
     if not landlord.is_password_valid(args['password']):
         abort(401, description='Invalid credentials')
 
-    token =landlord.generate_jwt()
+    token = landlord.generate_jwt()
 
     return jsonify({
         'success': True,
@@ -76,9 +79,9 @@ def login(args: dict):
 @use_args(landlord_update_password_schema, error_status_code=400)
 def update_landlord_password(identifier: str, args: dict):
     landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
-
+    
     if landlord is None:
-        abort(404, description=f'Landlord with identifier {identifier} not found')
+        abort(401, description='Missing token. Please login or register.')
 
     if not landlord.is_password_valid(args['current_password']):
         abort(401, description='Invalid password')

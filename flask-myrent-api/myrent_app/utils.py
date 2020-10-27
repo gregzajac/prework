@@ -2,7 +2,7 @@ import jwt
 from functools import wraps
 from flask import request, abort
 from werkzeug.exceptions import UnsupportedMediaType
-from myrent_app import app
+from . import app
 
 
 def validate_json_content_type(func):
