@@ -92,8 +92,6 @@ def test_get_current_user(client, user, token):
                             headers={
                                 'Authorization': f'Bearer {token}'
                             })
-
-
     response_data = response.get_json()
     
     assert response.status_code == 200       

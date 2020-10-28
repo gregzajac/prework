@@ -1,6 +1,6 @@
-import jwt
 from flask import current_app
-
+from werkzeug.security import generate_password_hash
+import jwt
 from library_app import db
 from datetime import datetime, date, timedelta
 from marshmallow import Schema, fields, validate, validates, ValidationError
@@ -37,7 +37,7 @@ class Book(db.Model):
     description = db.Column(db.Text)
     author_id = db.Column(db.Integer, db.ForeignKey('authors.id'), nullable=False)
     author = db.relationship('Author', back_populates='books')
-
+    
     def __repr__(self):
         return f'{self.title} - {self.author.first_name} {self.author.last_name}'
 
