@@ -35,7 +35,7 @@ def get_one_landlord(identifier: str):
 @landlords_bp.route('/landlords/register', methods=['POST'])
 @validate_json_content_type
 @use_args(landlord_schema, error_status_code=400)
-def register(args: dict):
+def register_landlord(args: dict):
     if Landlord.query.filter(Landlord.identifier == args['identifier']).first():
         abort(409, description=f'Landlord with identifier {args["identifier"]} already exists')
 
@@ -59,7 +59,7 @@ def register(args: dict):
 @landlords_bp.route('/landlords/login', methods=['POST'])
 @validate_json_content_type
 @use_args(LandlordSchema(only=['identifier', 'password']), error_status_code=400)
-def login(args: dict):
+def login_landlord(args: dict):
     landlord = Landlord.query.filter(Landlord.identifier == args['identifier']).first()
 
     if not landlord:
@@ -75,6 +75,20 @@ def login(args: dict):
         'token': token.decode()
     })
 
+
+@landlords_bp.route('/landlords/me', methods=['GET'])
+@token_landlord_required
+def get_current_landlord(identifier: str):
+    landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
+
+    if landlord is None:
+        abort(404, description=f'Landlord with identifier {identifier} not found')
+
+    return jsonify({
+        'success': True,
+        'data': landlord_schema.dump(landlord)
+    })  
+    
 
 @landlords_bp.route('/landlords/update/password', methods=['PUT'])
 @validate_json_content_type
@@ -96,18 +110,5 @@ def update_landlord_password(identifier: str, args: dict):
         'success': True,
         'data': landlord_schema.dump(landlord)
     })
-
-
-@landlords_bp.route('/landlords/me', methods=['GET'])
-@token_landlord_required
-def get_current_landlord(identifier: str):
-    landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
-
-    if landlord is None:
-        abort(404, description=f'Landlord with identifier {identifier} not found')
-
-    return jsonify({
-        'success': True,
-        'data': landlord_schema.dump(landlord)
-    })    
+  
  

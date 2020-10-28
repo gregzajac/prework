@@ -1,5 +1,4 @@
-- Jako właściciel chcę zarejestrować się w aplikacji, by po zalogowaniu móc dodawać mieszkania na wynajem, umowy z najemcami i rozliczenia na umowach
-- Jako właściciel chcę modyfikować swoje dane profilowe (hasło, imię, nazwisko, telefon, adres)
+
 - Jako właściciel chcę zarządzać mieszkaniami na wynajem (dodawać, modyfikować, usuwać mieszkania). W przypadku usuwania mieszkań chcę zmieniać status mieszkania, aby mieszkanie nadal było widoczne w powiązanych z nim umowach, by móc tworzyć statystyki dotyczące mojej działalności oraz aby najemca widział je w historii swoich najmów.
 - Jako właściciel chcę dodawać zdjęcia z opisami do danego mieszkania, by w bardziej aktrakcyjny sposób zaprezentować swoje mieszkania na stronie internetowej.
 - Jako właściciel chcę odznaczyć mieszkanie jako nieaktywne do wynajmu (np. remont mieszkania), by użytkownicy nie widzieli tego mieszkania na liście mieszkań do wynajęcia.
@@ -11,11 +10,13 @@
 - Jako najemca chcę modyfikować swoje dane profilowe (hasło, imię, nazwisko, telefon, adres)
 - Jako najemca chcę po zalogowaniu się do platformy widzieć listę wynajmowanych mieszkań, podpisane umowy i rozliczenia prowadzone z właścicielem
 
+
 ------------------------------
 
 In process:
-- Jako właściciel chcę zarejestrować się w aplikacji, by po zalogowaniu móc dodawać mieszkania na wynajem, umowy z najemcami i rozliczenia na umowach
+- użytkownik niezalogowany chcę widzieć listę właścicieli i mieszkań na wynajem
 
 
 Done:
--
+- Jako właściciel chcę zarejestrować się w aplikacji, by po zalogowaniu móc dodawać mieszkania na wynajem, umowy z najemcami i rozliczenia na umowach
+- Jako właściciel chcę modyfikować swoje dane profilowe (hasło, imię, nazwisko, telefon, adres)

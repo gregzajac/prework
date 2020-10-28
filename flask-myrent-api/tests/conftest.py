@@ -1,5 +1,6 @@
 import pytest
 from myrent_app import create_app, db
+from myrent_app.commands.db_manage_commnands import add_data
 
 
 @pytest.fixture
@@ -18,6 +19,35 @@ def client(app):
     with app.test_client() as client:
         yield client
 
+
+@pytest.fixture
+def landlord(client):
+    landlord = {
+        "address": "testaddress", 
+        "description": "testdescription", 
+        "email": "testmail@wp.pl", 
+        "first_name": "testfirst_name", 
+        "identifier": "testidentifier", 
+        "last_name": "testlast_name",
+        "phone": "testphone",
+        "password": "testpassword"
+    }
+
+    client.post('/api/v1/landlords/register', 
+                json=landlord)
+    return landlord
+
+
+@pytest.fixture
+def landlord_token(client, landlord):
+    response = client.post('/api/v1/landlords/login', 
+                            json={
+                                'identifier': landlord['identifier'],
+                                'password': landlord['password']
+                            })
+    response_data = response.get_json()
+    return response_data['token']
+  
 
 @pytest.fixture
 def sample_data(app):
