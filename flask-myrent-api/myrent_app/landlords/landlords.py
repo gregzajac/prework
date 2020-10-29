@@ -1,4 +1,4 @@
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 from webargs.flaskparser import use_args
 from pathlib import Path
 
@@ -10,12 +10,17 @@ from myrent_app.utils import validate_json_content_type, token_landlord_required
 
 @landlords_bp.route('/landlords', methods=['GET'])
 def get_all_landlords():
-    data = Landlord.query.all()
-    landlord_schema = LandlordSchema(many=True)
+    query = Landlord.query
+    query = Landlord.apply_order(query, request.args.get('sort'))
+    query = Landlord.apply_filter(query, request.args)
+    landlords = query.all()
+    
+    schema_args = Landlord.get_schema_args(request.args.get('fields'))
+    landlord_schema = LandlordSchema(**schema_args)
 
     return jsonify({
         'success': True,
-        'data': landlord_schema.dump(data)
+        'data': landlord_schema.dump(landlords)
     })
 
 
@@ -88,7 +93,7 @@ def get_current_landlord(identifier: str):
         'success': True,
         'data': landlord_schema.dump(landlord)
     })  
-    
+
 
 @landlords_bp.route('/landlords/update/password', methods=['PUT'])
 @validate_json_content_type

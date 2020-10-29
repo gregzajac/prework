@@ -263,3 +263,24 @@ def test_update_landlord_password_invalid_password(client, landlord, landlord_to
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is False
     assert 'Invalid password' in response_data['message']
+
+
+def test_get_landlords_with_params(client, sample_data):
+    response = client.get('/api/v1/landlords?fields=id,identifier,first_name&sort=-id&id[lte]=2')
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data'] == [
+                                        {
+                                        "first_name": "Andrzej", 
+                                        "id": 2, 
+                                        "identifier": "02"
+                                        }, 
+                                        {
+                                        "first_name": "Jan", 
+                                        "id": 1, 
+                                        "identifier": "01"
+                                        }
+                                    ]
