@@ -5,7 +5,13 @@ def test_get_landlords_no_records(client):
     response = client.get('/api/v1/landlords')
     expected_result = {
         'success': True,
-        'data': []
+        'data': [],
+        'number_of_records': 0,
+        'pagination': {
+            'total_pages': 0,
+            'total_records': 0,
+            'current_page': '/api/v1/landlords?page=1'
+        }
     }
     
     assert response.status_code == 200
@@ -21,7 +27,12 @@ def test_get_landlords(client, sample_data):
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is True
     assert len(response_data['data']) == 3
-    assert response_data['data'][0]['email'] == 'mail1@wp.pl'
+    assert response_data['number_of_records'] == 3
+    assert response_data['pagination'] == {
+            'total_pages': 1,
+            'total_records': 3,
+            'current_page': '/api/v1/landlords?page=1'
+        }
 
 
 def test_get_one_landlord(client, sample_data):

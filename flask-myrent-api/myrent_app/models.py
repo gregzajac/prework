@@ -1,17 +1,9 @@
-import re
 import jwt
 from flask import current_app
-from flask_sqlalchemy import BaseQuery
-from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy.sql.expression import BinaryExpression
-from werkzeug.datastructures import ImmutableDict
 from datetime import datetime, timedelta
 from marshmallow import Schema, fields, validate
 from werkzeug.security import generate_password_hash, check_password_hash
 from myrent_app import db
-
-
-COMPARISON_OPERATORS_RE = re.compile(r'(.*)\[(gte|lte|gt|lt)\]')
 
 
 class TimestampMixin(object):
@@ -38,63 +30,11 @@ class Landlord(TimestampMixin, db.Model):
     def generate_hashed_password(password: str) -> str:
         return generate_password_hash(password)
 
-
-    @staticmethod
-    def get_schema_args(fields: str) -> dict:
-        schema_args = {'many': True}
-        if fields:
-            schema_args['only'] = [field for field in fields.split(',') if field in Landlord.__table__.columns]
-        return schema_args
-
-    @staticmethod
-    def apply_order(query: BaseQuery, sort_keys: str) -> BaseQuery:        
-        if sort_keys:
-            for key in sort_keys.split(','):
-                desc = False
-                if key.startswith('-'):
-                    key = key[1:]
-                    desc = True
-                column_attr = getattr(Landlord, key, None)
-                if column_attr is not None:
-                    query = query.order_by(column_attr.desc()) if desc else query.order_by(column_attr)   
-        return query
-
-
-    @staticmethod
-    def _get_filter_argument(column_name: InstrumentedAttribute, 
-                            value: str, 
-                            operator: str) -> BinaryExpression:
-        operator_mapping = {
-            '==': column_name == value,
-            'gte': column_name >= value,
-            'gt': column_name > value,
-            'lte': column_name <= value,
-            'lt': column_name < value,
-        }
-        return operator_mapping[operator]
-
-
-    @staticmethod
-    def apply_filter(query: BaseQuery, params: ImmutableDict) -> BaseQuery:
-        if params:
-            for param, value in params.items():
-                if param not in ['fields', 'sort']:
-                    operator = '=='
-                    match = COMPARISON_OPERATORS_RE.match(param)
-                    if match is not None:
-                        param, operator = match.groups()
-                    column_attr = getattr(Landlord, param, None)
-                    if column_attr is not None:
-                        filter_argument = Landlord._get_filter_argument(column_attr, value, operator)
-                        query = query.filter(filter_argument)
-        return query
-
-
     def generate_jwt(self) -> bytes:
         payload = {
             'identifier': self.identifier,
             'model': 'landlords',
-            'exp': datetime.utcnow() + timedelta(minutes=30)
+            'exp': datetime.utcnow() + timedelta(minutes=current_app.config.get('JWT_EXPIRED_MINUTES = 30', 30))
         }
         return jwt.encode(payload, current_app.config.get('SECRET_KEY'))
 

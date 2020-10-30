@@ -1,26 +1,29 @@
 from flask import jsonify, abort, request
+from flask_cors import cross_origin
 from webargs.flaskparser import use_args
 from pathlib import Path
 
 from myrent_app import db
 from myrent_app.landlords import landlords_bp
 from myrent_app.models import Landlord, LandlordSchema, landlord_schema, landlord_update_password_schema
-from myrent_app.utils import validate_json_content_type, token_landlord_required
+from myrent_app.utils import validate_json_content_type, token_landlord_required, get_schema_args, apply_order, apply_filter, get_pagination
 
 
 @landlords_bp.route('/landlords', methods=['GET'])
+# @cross_origin
 def get_all_landlords():
     query = Landlord.query
-    query = Landlord.apply_order(query, request.args.get('sort'))
-    query = Landlord.apply_filter(query, request.args)
-    landlords = query.all()
-    
-    schema_args = Landlord.get_schema_args(request.args.get('fields'))
-    landlord_schema = LandlordSchema(**schema_args)
+    query = apply_order(Landlord, query)
+    query = apply_filter(Landlord, query)
+    items, pagination = get_pagination(query, 'landlords.get_all_landlords')
+    schema_args = get_schema_args(Landlord)
+    landlords = LandlordSchema(**schema_args).dump(items)
 
     return jsonify({
         'success': True,
-        'data': landlord_schema.dump(landlords)
+        'data': landlords,
+        'number_of_records': len(landlords),
+        'pagination': pagination
     })
 
 
