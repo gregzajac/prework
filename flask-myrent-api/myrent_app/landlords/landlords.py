@@ -1,12 +1,14 @@
 from flask import jsonify, abort, request
-from flask_cors import cross_origin
+# from flask_cors import cross_origin
 from webargs.flaskparser import use_args
 from pathlib import Path
 
 from myrent_app import db
 from myrent_app.landlords import landlords_bp
-from myrent_app.models import Landlord, LandlordSchema, landlord_schema, landlord_update_password_schema
-from myrent_app.utils import validate_json_content_type, token_landlord_required, get_schema_args, apply_order, apply_filter, get_pagination
+from myrent_app.models import Landlord, LandlordSchema, landlord_schema, \
+    landlord_update_password_schema
+from myrent_app.utils import validate_json_content_type, token_landlord_required, \
+    get_schema_args, apply_order, apply_filter, get_pagination, generate_hashed_password
 
 
 @landlords_bp.route('/landlords', methods=['GET'])
@@ -50,7 +52,7 @@ def register_landlord(args: dict):
     if Landlord.query.filter(Landlord.email == args['email']).first():
         abort(409, description=f'Landlord with email {args["email"]} already exists') 
     
-    args['password'] = Landlord.generate_hashed_password(args['password'])
+    args['password'] = generate_hashed_password(args['password'])
     
     new_landlord = Landlord(**args)
     db.session.add(new_landlord)
@@ -111,7 +113,7 @@ def update_landlord_password(identifier: str, args: dict):
     if not landlord.is_password_valid(args['current_password']):
         abort(401, description='Invalid password')
 
-    landlord.password = landlord.generate_hashed_password(args['new_password'])
+    landlord.password = generate_hashed_password(args['new_password'])
     db.session.commit()
     
     return jsonify({

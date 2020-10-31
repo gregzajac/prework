@@ -7,7 +7,8 @@ from typing import Tuple
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql.expression import BinaryExpression
 from werkzeug.exceptions import UnsupportedMediaType
-# from myrent_app import app
+from werkzeug.security import generate_password_hash
+
 
 COMPARISON_OPERATORS_RE = re.compile(r'(.*)\[(gte|lte|gt|lt)\]')
 
@@ -134,3 +135,7 @@ def get_pagination(query: BaseQuery, func_name: str) -> Tuple[list, dict]:
         pagination['previous_page'] = url_for(func_name, page=page-1, **params)
     
     return paginate_obj.items, pagination
+
+
+def generate_hashed_password(password: str) -> str:
+    return generate_password_hash(password)

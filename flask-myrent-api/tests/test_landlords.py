@@ -42,7 +42,7 @@ def test_get_one_landlord(client, sample_data):
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is True
-    assert len(response_data['data']) == 10
+    assert len(response_data['data']) == 11
     assert response_data['data']['email'] == 'mail1@wp.pl'
     assert response_data['data']['first_name'] == 'Jan'
     assert response_data['data']['last_name'] == 'Kowalski'

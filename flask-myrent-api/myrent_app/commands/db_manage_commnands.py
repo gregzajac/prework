@@ -2,6 +2,7 @@ import os, json
 from myrent_app import db
 from myrent_app.commands import db_manage_bp
 from myrent_app.models import Landlord
+from myrent_app.utils import generate_hashed_password
 
 
 def load_json_data(filename: str) -> list:
@@ -23,7 +24,7 @@ def add_data():
     try:
         data_json = load_json_data('landlords.json')
         for item in data_json:
-            item['password'] = Landlord.generate_hashed_password(item['password'])
+            item['password'] = generate_hashed_password(item['password'])
             landlord = Landlord(**item)
             db.session.add(landlord)
         
