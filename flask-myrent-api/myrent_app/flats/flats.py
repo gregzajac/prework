@@ -2,15 +2,25 @@ from flask import jsonify
 
 from myrent_app import db
 from myrent_app.flats import flats_bp
-from myrent_app.models import Flat, flat_schema
+from myrent_app.models import Flat, FlatSchema, flat_schema
+from myrent_app.utils import apply_order, apply_filter, get_pagination, validate_json_content_type, get_schema_args
 
 
 @flats_bp.route('/flats', methods=['GET'])
 def get_all_flats():
+    query = Flat.query
+    query = apply_order(Flat, query)
+    query = apply_filter(Flat, query)
+    items, pagination = get_pagination(query, 'flats.get_all_flats')
+    
+    schema_args = get_schema_args(Flat)
+    flats = FlatSchema(**schema_args).dump(items)
 
     return jsonify({
         'success': True,
-        'data': 'Lista wszystkich mieszkań'
+        'data': flats,
+        'number_of_records': len(flats),
+        'pagination': pagination
     })
 
 

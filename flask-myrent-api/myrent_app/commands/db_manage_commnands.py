@@ -7,7 +7,7 @@ from myrent_app.utils import generate_hashed_password
 
 def load_json_data(filename: str) -> list:
     json_path = os.path.join('C:\\python\\CodersLab\\Python-examples\\flask-myrent-api\\samples', filename)
-    with open(json_path) as file:
+    with open(json_path, encoding='utf-8') as file:
         data_json = json.load(file)
     return data_json
 
