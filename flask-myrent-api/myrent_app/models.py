@@ -30,7 +30,7 @@ class Landlord(TimestampMixin, db.Model):
 
     def generate_jwt(self) -> bytes:
         payload = {
-            'identifier': self.identifier,
+            'id': self.id,
             'model': 'landlords',
             'exp': datetime.utcnow() + timedelta(minutes=current_app.config.get('JWT_EXPIRED_MINUTES = 30', 30))
         }
@@ -51,7 +51,7 @@ class Flat(TimestampMixin, db.Model):
     landlord = db.relationship('Landlord', back_populates='flats')
 
     def __repr__(self):
-        return self.identifier
+        return f'id: {self.id} - {self.identifier}'
 
 
 class LandlordSchema(Schema):
@@ -95,4 +95,5 @@ class FlatSchema(Schema):
 
 landlord_schema = LandlordSchema()
 landlord_update_password_schema = LandlordUpdatePasswordSchema()
+flat_schema = FlatSchema()
 

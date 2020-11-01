@@ -29,12 +29,14 @@ def get_all_landlords():
     })
 
 
-@landlords_bp.route('/landlords/<string:identifier>', methods=['GET'])
-def get_one_landlord(identifier: str):
-    landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
+@landlords_bp.route('/landlords/<int:landlord_id>', methods=['GET'])
+def get_one_landlord(landlord_id: str):
+    landlord = Landlord.query.get_or_404(landlord_id, 
+                                         description=f'Landlord with id {landlord_id} not found')
+    # landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
 
-    if landlord is None:
-        abort(404, description=f'Landlord with identifier {identifier} not found')
+    # if landlord is None:
+    #     abort(404, description=f'Landlord with identifier {identifier} not found')
 
     return jsonify({
         'success': True,
@@ -88,11 +90,13 @@ def login_landlord(args: dict):
 
 @landlords_bp.route('/landlords/me', methods=['GET'])
 @token_landlord_required
-def get_current_landlord(identifier: str):
-    landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
+def get_current_landlord(landlord_id: str):
+    landlord = Landlord.query.get_or_404(landlord_id, 
+                                         description=f'Landlord with id {landlord_id} not found')
+    # landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
 
-    if landlord is None:
-        abort(404, description=f'Landlord with identifier {identifier} not found')
+    # if landlord is None:
+    #     abort(404, description=f'Landlord with identifier {identifier} not found')
 
     return jsonify({
         'success': True,
@@ -104,11 +108,13 @@ def get_current_landlord(identifier: str):
 @validate_json_content_type
 @token_landlord_required
 @use_args(landlord_update_password_schema, error_status_code=400)
-def update_landlord_password(identifier: str, args: dict):
-    landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
+def update_landlord_password(landlord_id: str, args: dict):
+    landlord = Landlord.query.get_or_404(landlord_id, description=f'Landlord with id {landlord_id} not found')
+
+    # landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
     
-    if landlord is None:
-        abort(401, description='Missing token. Please login or register.')
+    # if landlord is None:
+    #     abort(401, description='Missing token. Please login or register.')
 
     if not landlord.is_password_valid(args['current_password']):
         abort(401, description='Invalid password')

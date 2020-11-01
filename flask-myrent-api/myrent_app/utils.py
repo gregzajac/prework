@@ -37,7 +37,7 @@ def token_landlord_required(func):
         if payload['model'] != 'landlords':
             abort(401, description='Missing token. Please login or register.')
 
-        return func(payload['identifier'], *args, **kwargs)
+        return func(payload['id'], *args, **kwargs)
     return wrapper
 
 def token_required(func):
