@@ -32,11 +32,15 @@ def token_landlord_required(func):
         if token is None:
             abort(401, description='Missing token. Please login or register.')
 
-        payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
+        try:
+            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])
 
-        if payload['model'] != 'landlords':
-            abort(401, description='Missing token. Please login or register.')
-
+            if payload['model'] != 'landlords':
+                abort(401, description='Missing token. Please login or register.')
+        except jwt.ExpiredSignatureError:
+            abort(401, description='Expired token. Please login to get new token.')
+        except jwt.InvalidTokenError:
+            abort(401, description='Invalid token. Please login or register.')
         return func(payload['id'], *args, **kwargs)
     return wrapper
 

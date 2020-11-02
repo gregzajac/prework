@@ -53,3 +53,12 @@ def landlord_token(client, landlord):
 def sample_data(app):
     runner = app.test_cli_runner()
     runner.invoke(add_data)
+
+
+@pytest.fixture
+def flat():
+    return {
+        'identifier': 'testflat',
+        'address': 'testaddress',
+        'description': 'testdescription'
+    }
