@@ -30,13 +30,9 @@ def get_all_landlords():
 
 
 @landlords_bp.route('/landlords/<int:landlord_id>', methods=['GET'])
-def get_one_landlord(landlord_id: str):
+def get_one_landlord(landlord_id: int):
     landlord = Landlord.query.get_or_404(landlord_id, 
-                                         description=f'Landlord with id {landlord_id} not found')
-    # landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
-
-    # if landlord is None:
-    #     abort(404, description=f'Landlord with identifier {identifier} not found')
+                    description=f'Landlord with id {landlord_id} not found')
 
     return jsonify({
         'success': True,
@@ -92,11 +88,7 @@ def login_landlord(args: dict):
 @token_landlord_required
 def get_current_landlord(landlord_id: str):
     landlord = Landlord.query.get_or_404(landlord_id, 
-                                         description=f'Landlord with id {landlord_id} not found')
-    # landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
-
-    # if landlord is None:
-    #     abort(404, description=f'Landlord with identifier {identifier} not found')
+                    description=f'Landlord with id {landlord_id} not found')
 
     return jsonify({
         'success': True,
@@ -104,17 +96,13 @@ def get_current_landlord(landlord_id: str):
     })  
 
 
-@landlords_bp.route('/landlords/update/password', methods=['PUT'])
+@landlords_bp.route('/landlords/password', methods=['PUT'])
 @validate_json_content_type
 @token_landlord_required
 @use_args(landlord_update_password_schema, error_status_code=400)
 def update_landlord_password(landlord_id: str, args: dict):
-    landlord = Landlord.query.get_or_404(landlord_id, description=f'Landlord with id {landlord_id} not found')
-
-    # landlord = Landlord.query.filter(Landlord.identifier == identifier).first()
-    
-    # if landlord is None:
-    #     abort(401, description='Missing token. Please login or register.')
+    landlord = Landlord.query.get_or_404(landlord_id, 
+                    description=f'Landlord with id {landlord_id} not found')
 
     if not landlord.is_password_valid(args['current_password']):
         abort(401, description='Invalid password')
@@ -128,3 +116,41 @@ def update_landlord_password(landlord_id: str, args: dict):
     })
   
  
+@landlords_bp.route('/landlords/data', methods=['PUT'])
+@validate_json_content_type
+@token_landlord_required
+@use_args(LandlordSchema(exclude=['password']), error_status_code=400)
+def update_landlord_data(landlord_id: int, args: dict):
+    landlord = Landlord.query.get_or_404(landlord_id, 
+                    description=f'Landlord with id {landlord_id} not found')
+
+    landlord_with_this_identifier = Landlord.query.filter(
+                                        Landlord.identifier == args['identifier']).first()
+    if landlord_with_this_identifier is not None and \
+        landlord_with_this_identifier.identifier != landlord.identifier:
+            abort(409, description=f'Landlord with identifier {args["identifier"]}'
+                                    ' already exists')
+          
+    landlord_with_this_email = Landlord.query.filter(
+                                    Landlord.email == args['email']).first()
+    if landlord_with_this_email is not None and \
+        landlord_with_this_email.email != landlord.email:
+            abort(409, description=f'Landlord with email {args["email"]}'
+                                    ' already exists')
+           
+    landlord.identifier = args['identifier']
+    landlord.email = args['email']
+    landlord.first_name = args['first_name']
+    landlord.last_name = args['last_name']
+    landlord.phone = args['phone']
+    landlord.address = args['address']
+    description = args.get('description')
+    if description is not None:
+        landlord.description = description
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'data': landlord_schema.dump(landlord)
+    })
+

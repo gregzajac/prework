@@ -220,7 +220,7 @@ def test_get_current_landlord(client, landlord, landlord_token):
 
 
 def test_update_landlord_password(client, landlord, landlord_token):
-    response = client.put('/api/v1/landlords/update/password',
+    response = client.put('/api/v1/landlords/password',
                             json={
                                 'current_password': landlord['password'],
                                 'new_password': 'newlandlordpassword'
@@ -246,7 +246,7 @@ def test_update_landlord_password(client, landlord, landlord_token):
 
 
 def test_update_landlord_password_missing_token(client, landlord):
-    response = client.put('/api/v1/landlords/update/password',
+    response = client.put('/api/v1/landlords/password',
                             json={
                                 'current_password': landlord['password'],
                                 'new_password': 'newlandlordpassword'
@@ -260,7 +260,7 @@ def test_update_landlord_password_missing_token(client, landlord):
 
 
 def test_update_landlord_password_invalid_password(client, landlord, landlord_token):
-    response = client.put('/api/v1/landlords/update/password',
+    response = client.put('/api/v1/landlords/password',
                             json={
                                 'current_password': 'wrongpassword',
                                 'new_password': 'newlandlordpassword'
@@ -295,3 +295,32 @@ def test_get_landlords_with_params(client, sample_data):
                                         "identifier": "01"
                                         }
                                     ]
+
+
+def test_update_landlord_data(client, landlord_token):
+    updated_landlord = {
+        "identifier": "updatedidentifier",
+        "email": "updatedemail@wp.pl",
+        "address": "updated address",
+        "first_name": "updated first name",
+        "last_name": "updated last name",
+        "phone": "updated phone",
+        "description": "updated description"
+    }
+    response = client.put('/api/v1/landlords/data',
+                            json=updated_landlord,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['identifier'] == updated_landlord['identifier']
+    assert response_data['data']['email'] == updated_landlord['email']
+    assert response_data['data']['address'] == updated_landlord['address']
+    assert response_data['data']['first_name'] == updated_landlord['first_name']
+    assert response_data['data']['last_name'] == updated_landlord['last_name']
+    assert response_data['data']['phone'] == updated_landlord['phone']
+    assert response_data['data']['description'] == updated_landlord['description']
