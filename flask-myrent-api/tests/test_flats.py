@@ -265,3 +265,45 @@ def test_update_flat_existing_identifier(client, landlord_token, flat, flat_2):
 
     description = f'Flat with identifier {updated_flat["identifier"]} already exists'
     assert response_data['message'] == description
+
+
+def test_delete_flat(client, landlord_token, flat):
+    response = client.post('/api/v1/flats', 
+                            json=flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    flat_id = response.get_json()['data']['id'] 
+    assert flat_id == 1
+
+    response = client.delete('/api/v1/flats/1',
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data'] == f'Flat with id {flat_id} has been deleted'
+
+
+def test_delete_flat_missing_token(client, landlord_token, flat):
+    response = client.post('/api/v1/flats', 
+                            json=flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    flat_id = response.get_json()['data']['id'] 
+    assert flat_id == 1
+
+    response = client.delete('/api/v1/flats/1')
+    response_data = response.get_json()
+
+    print(response_data)
+    assert response.status_code == 401
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert 'Missing token. Please login or register.' in response_data['message']

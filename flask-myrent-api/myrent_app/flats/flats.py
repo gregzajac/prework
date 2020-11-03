@@ -110,7 +110,7 @@ def update_flat(landlord_id: int, args: dict, flat_id: int):
 def delete_flat(landlord_id: int, flat_id):
     flat = Flat.query.get_or_404(flat_id, 
                                 description=f'Flat with id {flat_id} not found')
-    print('flat-->', flat)
+
     db.session.delete(flat)
     db.session.commit()
 
@@ -118,4 +118,3 @@ def delete_flat(landlord_id: int, flat_id):
         'success': True,
         'data': f'Flat with id {flat_id} has been deleted'
     })
-    
