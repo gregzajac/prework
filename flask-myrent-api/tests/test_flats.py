@@ -110,3 +110,158 @@ def test_create_flat(client, landlord, flat, landlord_token):
     assert response_data['data']['landlord']['last_name'] == landlord['last_name']
 
 
+@pytest.mark.parametrize(
+    'data,missing_field',
+    [
+        ({'identifier': 'newidentifier'}, 'address'),
+        ({'address': 'newaddress'}, 'identifier'),
+    ]
+)
+def test_create_flat_missing_data(client, landlord_token, 
+                                    data, missing_field):
+    response = client.post('/api/v1/flats', 
+                        json=data,
+                        headers={
+                            'Authorization': f'Bearer {landlord_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 400
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert missing_field in response_data['message']
+    assert 'Missing data for required field.' in response_data['message'][missing_field]
+
+
+def test_update_flat(client, landlord_token, landlord, flat):
+    response = client.post('/api/v1/flats', 
+                            json=flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    assert response.get_json()['data']['id'] == 1
+
+    updated_flat = {
+        "identifier": "updatediflat",
+        "address": "updated address",
+        "description": "updated description",
+        "status": "inactive"
+    }
+
+    response = client.put('/api/v1/flats/1',
+                            json=updated_flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['identifier'] == updated_flat['identifier']
+    assert response_data['data']['address'] == updated_flat['address']
+    assert response_data['data']['status'] == updated_flat['status']
+    assert response_data['data']['description'] == updated_flat['description']
+    assert response_data['data']['landlord']['identifier'] == landlord['identifier']
+    assert response_data['data']['landlord']['first_name'] == landlord['first_name']
+    assert response_data['data']['landlord']['last_name'] == landlord['last_name']
+
+
+@pytest.mark.parametrize(
+    'data,missing_field',
+    [
+        ({'identifier': 'updatedflat'}, 'address'),
+        ({'address': 'updatedaddress'}, 'identifier')
+    ]
+)
+def test_update_flat_missing_data(client, landlord_token, flat,
+                                    data, missing_field):
+    response = client.post('/api/v1/flats', 
+                            json=flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    assert response.get_json()['data']['id'] == 1
+
+
+    response = client.put('/api/v1/flats/1',
+                            json=data,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    response_data = response.get_json()
+
+    assert response.status_code == 400
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert missing_field in response_data['message']
+    assert 'Missing data for required field.' in response_data['message'][missing_field]
+
+
+def test_update_flat_wrong_status(client, landlord_token, flat):
+    response = client.post('/api/v1/flats', 
+                            json=flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    assert response.get_json()['data']['id'] == 1
+
+    updated_flat = {
+        "identifier": "updatediflat",
+        "address": "updated address",
+        "description": "updated description",
+        "status": "wrong_status"
+    }
+
+    response = client.put('/api/v1/flats/1',
+                            json=updated_flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    response_data = response.get_json()
+
+    assert response.status_code == 409
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert response_data['message'] == 'Allowed statuses: active, inactive, sold'
+
+
+def test_update_flat_existing_identifier(client, landlord_token, flat, flat_2):
+    response = client.post('/api/v1/flats', 
+                            json=flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    assert response.get_json()['data']['id'] == 1
+
+    response = client.post('/api/v1/flats', 
+                            json=flat_2,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    
+    assert response.get_json()['data']['id'] == 2    
+
+    updated_flat = {
+        "identifier": flat['identifier'],
+        "address": "updated address",
+        "description": "updated description"
+    }
+
+    response = client.put('/api/v1/flats/2',
+                            json=updated_flat,
+                            headers={
+                                'Authorization': f'Bearer {landlord_token}'
+                            })
+    response_data = response.get_json()
+
+    assert response.status_code == 409
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+
+    description = f'Flat with identifier {updated_flat["identifier"]} already exists'
+    assert response_data['message'] == description

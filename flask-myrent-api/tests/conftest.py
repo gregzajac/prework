@@ -58,7 +58,15 @@ def sample_data(app):
 @pytest.fixture
 def flat():
     return {
-        'identifier': 'testflat',
+        'identifier': 'testidentifier',
         'address': 'testaddress',
         'description': 'testdescription'
+    }
+
+@pytest.fixture
+def flat_2():
+    return {
+        'identifier': 'testidentifier2',
+        'address': 'testaddress2',
+        'description': 'testdescription2'
     }
