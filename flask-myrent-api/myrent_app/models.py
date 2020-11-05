@@ -23,6 +23,7 @@ class Landlord(TimestampMixin, db.Model):
     description = db.Column(db.Text)
     password = db.Column(db.String(255), nullable=False)
     flats = db.relationship('Flat', back_populates='landlord')
+    tenants = db.relationship('Tenant', back_populates='landlord')
 
 
     def __repr__(self):
@@ -53,6 +54,24 @@ class Flat(TimestampMixin, db.Model):
 
     def __repr__(self):
         return f'id: {self.id} - {self.identifier}'
+
+
+class Tenant(TimestampMixin, db.Model):
+    __tablename__ = 'tenants'
+    id = db.Column(db.Integer, primary_key=True)
+    identifier = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(50), nullable=False)
+    address = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    password = db.Column(db.String(255), nullable=False)
+    landlord_id = db.Column(db.Integer, db.ForeignKey('landlords.id'), nullable=False)
+    landlord = db.relationship('Landlord', back_populates='tenants')
+
+    def __repr__(self):
+        return f'<Tenant>: {self.first_name} {self.last_name}'
 
 
 class LandlordSchema(Schema):
