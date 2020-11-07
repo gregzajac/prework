@@ -113,7 +113,26 @@ class FlatSchema(Schema):
     updated = fields.DateTime(dump_only=True)
 
 
+class TenantSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    identifier = fields.String(required=True, validate=validate.Length(min=3, max=255))
+    email = fields.String(required=True, validate=validate.Length(max=255))
+    first_name = fields.String(required=True, validate=validate.Length(max=100))
+    last_name = fields.String(required=True, validate=validate.Length(max=100))
+    phone = fields.String(required=True, validate=validate.Length(max=50))
+    address = fields.String(required=True, validate=validate.Length(max=255))
+    description = fields.String()
+    password = fields.String(load_only=True, required=True, 
+                    validate=validate.Length(min=6, max=255))
+    landlord_id = fields.Integer(load_only=True)
+    landlord = fields.Nested(lambda: LandlordSchema(only=['identifier', 
+                                                         'first_name', 
+                                                         'last_name']))
+    created = fields.DateTime(dump_only=True)
+    updated = fields.DateTime(dump_only=True)    
+
+
 landlord_schema = LandlordSchema()
 landlord_update_password_schema = LandlordUpdatePasswordSchema()
 flat_schema = FlatSchema()
-
+tenant_schema = TenantSchema()

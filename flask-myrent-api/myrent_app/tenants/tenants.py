@@ -1,14 +1,19 @@
 ﻿from flask import jsonify
 from myrent_app.tenants import tenants_bp
 from myrent_app.utils import token_landlord_required
+from myrent_app.models import Tenant, TenantSchema
 
 
-#only landlord
-@tenants_bp.route('/tenants', methods=['GET'])
-def get_landlord_tenants():
+@tenants_bp.route('/tenants/<int:landlord_id>', methods=['GET'])
+# @token_landlord_required
+def get_landlord_tenants(landlord_id: int):
+    tenants = Tenant.query.filter(Tenant.landlord_id == landlord_id).all()
+    items = TenantSchema(many=True, exclude=['landlord']).dump(tenants)
+
     return jsonify({
         'success': True,
-        'data': 'get_landlord_tenants function (all landlord tenants)'
+        'data': items,
+        'number_of_records': len(items)
     })
 
 
