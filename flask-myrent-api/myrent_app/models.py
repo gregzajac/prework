@@ -73,6 +73,19 @@ class Tenant(TimestampMixin, db.Model):
     def __repr__(self):
         return f'<Tenant>: {self.first_name} {self.last_name}'
 
+    def generate_jwt(self) -> bytes:
+        jwt_expired_minutes = current_app.config.get('JWT_EXPIRED_MINUTES', 30)
+        payload = {
+            'id': self.id,
+            'model': 'tenants',
+            'exp': datetime.utcnow() + timedelta(minutes=jwt_expired_minutes)
+        }
+
+        return jwt.encode(payload, current_app.config.get('SECRET_KEY'))
+
+    def is_password_valid(self, password: str) -> bool:
+        return check_password_hash(self.password, password)
+
 
 class LandlordSchema(Schema):
     id = fields.Integer(dump_only=True)
@@ -131,8 +144,14 @@ class TenantSchema(Schema):
     created = fields.DateTime(dump_only=True)
     updated = fields.DateTime(dump_only=True)    
 
+class TenantUpdatePasswordSchema(Schema):
+    current_password = fields.String(required=True, load_only=True, 
+                            validate=validate.Length(min=6, max=255))
+    new_password = fields.String(required=True, load_only=True, 
+                        validate=validate.Length(min=6, max=255))
 
 landlord_schema = LandlordSchema()
 landlord_update_password_schema = LandlordUpdatePasswordSchema()
 flat_schema = FlatSchema()
 tenant_schema = TenantSchema()
+tenant_update_password_schema = TenantUpdatePasswordSchema()
