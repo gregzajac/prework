@@ -40,15 +40,22 @@ def get_landlord_tenant(landlord_id: int, tenant_id: int):
 @validate_json_content_type
 @use_args(TenantSchema(exclude=['landlord_id']), error_status_code=400)
 def create_tenant(landlord_id: int, args: dict):
-    tenant = Tenant(landlord_id=landlord_id, **args)
+    if Tenant.query.filter(Tenant.identifier == args['identifier']).first():
+        abort(409, description=f'Tenant with identifier {args["identifier"]} already exists')
 
-    db.session.add(tenant)
+    if Tenant.query.filter(Tenant.email == args['email']).first():
+        abort(409, description=f'Tenant with email {args["email"]} already exists') 
+    
+    args['password'] = generate_hashed_password(args['password'])
+    
+    new_tenant = Tenant(landlord_id=landlord_id, **args)
+    db.session.add(new_tenant)
     db.session.commit()
 
     return jsonify({
         'success': True,
-        'data': tenant_schema.dump(tenant)
-    })
+        'data': tenant_schema.dump(new_tenant)
+    }), 201
 
 
 @tenants_bp.route('/tenants/login', methods=['POST'])
@@ -71,13 +78,26 @@ def login_tenant(args: dict):
     })
 
 
+@tenants_bp.route('/tenants/me', methods=['GET'])
+@token_landlord_tenant_required
+def get_current_tenant(id_model_tuple: tuple):
+    if id_model_tuple[1] != 'tenants':
+        abort(404, description='Invalid token. Please login or register as tenant.')
+
+    tenant = Tenant.query.get_or_404(id_model_tuple[0],
+                            description=f'Tenant with id {id_model_tuple[0]} not found')
+
+    return jsonify({
+        'success': True,
+        'data': tenant_schema.dump(tenant)
+    })
+
+
 @tenants_bp.route('/tenants/<int:tenant_id>/password', methods=['PUT'])
 @token_landlord_tenant_required
 @validate_json_content_type
 @use_args(tenant_update_password_schema, error_status_code=400)
 def update_tenant_password(id_model_tuple: tuple, args: dict, tenant_id: int):
-    print('use_args dane: ', use_args)
-    print('model: ', id_model_tuple[1])
     if id_model_tuple[1] == 'landlords':
         tenant = Tenant.query.filter(Tenant.landlord_id == id_model_tuple[0]) \
                             .filter(Tenant.id == tenant_id).first()
@@ -102,19 +122,67 @@ def update_tenant_password(id_model_tuple: tuple, args: dict, tenant_id: int):
     })
 
 
-#only landlord or this tenant
 @tenants_bp.route('/tenants/<int:tenant_id>/data', methods=['PUT'])
-def update_tenant_data(tenant_id):
+@token_landlord_tenant_required
+@validate_json_content_type
+@use_args(TenantSchema(exclude=['password']), error_status_code=400)
+def update_tenant_data(id_model_tuple: tuple, args: dict, tenant_id: int):
+    if id_model_tuple[1] == 'landlords':
+        tenant = Tenant.query.filter(Tenant.landlord_id == id_model_tuple[0]) \
+                                .filter(Tenant.id == tenant_id).first()
+        if tenant is None:
+            abort(404, description=f'Tenant with id {tenant_id} not found')
+
+    if id_model_tuple[1] == 'tenants':
+        if id_model_tuple[0] != tenant_id:
+            abort(404, description=f'Incorrect tenant id')
+        tenant = Tenant.query.get_or_404(tenant_id, 
+                                description=f'Tenant with id {tenant_id} not found')
+
+    tenant_with_this_identifier = Tenant.query.filter(
+                                        Tenant.identifier == args['identifier']).first()
+    if tenant_with_this_identifier is not None and \
+        tenant_with_this_identifier.identifier != tenant.identifier:
+            abort(409, description=f'Tenant with identifier {args["identifier"]}'
+                                    ' already exists')
+          
+    tenant_with_this_email = Tenant.query.filter(
+                                    Tenant.email == args['email']).first()
+    if tenant_with_this_email is not None and \
+        tenant_with_this_email.email != tenant.email:
+            abort(409, description=f'Tenant with email {args["email"]}'
+                                    ' already exists')
+           
+    tenant.identifier = args['identifier']
+    tenant.email = args['email']
+    tenant.first_name = args['first_name']
+    tenant.last_name = args['last_name']
+    tenant.phone = args['phone']
+    tenant.address = args['address']
+    description = args.get('description')
+    if description is not None:
+        tenant.description = description
+    db.session.commit()
+
     return jsonify({
         'success': True,
-        'data': f'update_tenant_data function (tenant id: {tenant_id}'
+        'data': tenant_schema.dump(tenant)
     })
 
 
-#only landlord
 @tenants_bp.route('/tenants/<int:tenant_id>', methods=['DELETE'])
-def delete_tenant(tenant_id):
+@token_landlord_required
+def delete_tenant(landlord_id: int, tenant_id: int):
+    tenant = Tenant.query.get_or_404(tenant_id, 
+                            description=f'Tenant with id {tenant_id} not found')
+
+    if tenant.landlord_id != landlord_id:
+        abort(404, description=f'Tenant with id {tenant_id} not found')
+
+    db.session.delete(tenant)
+    db.session.commit()
+
     return jsonify({
         'success': True,
-        'data': f'delete_tenant function (tenant id: {tenant_id}'
+        'data': f'Tenant with id {tenant_id} has been deleted'
     })

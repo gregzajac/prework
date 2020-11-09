@@ -75,7 +75,7 @@ def test_get_one_flat(client, sample_data):
     assert response_data['data']['identifier'] == 'Mostnika 5'
     assert response_data['data']['address'] == 'Mostnika 5/12 01-100 Słupsk'
     assert response_data['data']['description'] == 'Mieszkanie dwupokojowe z aneksem kuchennym na trzecim piętrze.'
-    assert response_data['data']['landlord']['identifier'] == '01'
+    assert response_data['data']['landlord']['identifier'] == 'landlord1'
     assert response_data['data']['landlord']['first_name'] == 'Jan'
     assert response_data['data']['landlord']['last_name'] == 'Kowalski'
 
@@ -306,4 +306,5 @@ def test_delete_flat_missing_token(client, landlord_token, flat):
     assert response.status_code == 401
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is False
-    assert 'Missing token. Please login or register.' in response_data['message']
+    alert = 'Missing landlord token. Please login or register as landlord.'
+    assert alert in response_data['message']

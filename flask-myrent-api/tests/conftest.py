@@ -70,3 +70,68 @@ def flat_2():
         'address': 'testaddress2',
         'description': 'testdescription2'
     }
+
+@pytest.fixture
+def tenant(client, landlord_token):
+    tenant = {
+        "address": "testaddress",
+        "description": "testtenantdescription",
+        "email": "testtenantmail@wp.pl",
+        "first_name": "testfirst_name",
+        "identifier": "testtenant",
+        "last_name": "testlast_name",
+        "phone": "testphone",
+        "password": "testtenant"
+    }
+
+    client.post('/api/v1/tenants', 
+                json=tenant,
+                headers={
+                    'Authorization': f'Bearer {landlord_token}'
+                })
+
+    return tenant
+
+@pytest.fixture
+def tenant_token(client, tenant):
+    print('tenant dane: ', tenant)
+    response = client.post('/api/v1/tenants/login', 
+                            json={
+                                'identifier': tenant['identifier'],
+                                'password': tenant['password']
+                            })
+    response_data = response.get_json()
+    print('dane response data tenant_token: ', response_data)
+    return response_data['token']
+
+@pytest.fixture
+def tenant2(client, landlord_token):
+    tenant2 = {
+        "address": "testaddress2",
+        "description": "testtenantdescription2",
+        "email": "testtenantmail2@wp.pl",
+        "first_name": "testfirst_name2",
+        "identifier": "testtenant2",
+        "last_name": "testlast_name2",
+        "phone": "testphone2",
+        "password": "testtenant2"
+    }
+
+    client.post('/api/v1/tenants', 
+                json=tenant2,
+                headers={
+                    'Authorization': f'Bearer {landlord_token}'
+                })
+
+    return tenant
+
+@pytest.fixture
+def tenant2_token(client, tenant2):
+    response = client.post('/api/v1/tenants/login', 
+                            json={
+                                'identifier': tenant2['identifier'],
+                                'password': tenant2['password']
+                            })
+    response_data = response.get_json()
+    print('dane response data tenant_token: ', response_data)
+    return response_data['token']

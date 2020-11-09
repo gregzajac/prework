@@ -36,19 +36,20 @@ def test_get_landlords(client, sample_data):
 
 
 def test_get_one_landlord(client, sample_data):
-    response = client.get('/api/v1/landlords/01')
+    response = client.get('/api/v1/landlords/1')
     response_data = response.get_json()
 
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is True
     assert len(response_data['data']) == 11
-    assert response_data['data']['email'] == 'mail1@wp.pl'
+    assert response_data['data']['identifier'] == 'landlord1'
+    assert response_data['data']['email'] == 'landlord1@wp.pl'
     assert response_data['data']['first_name'] == 'Jan'
     assert response_data['data']['last_name'] == 'Kowalski'
     assert response_data['data']['phone'] == '601-500-400'
     assert response_data['data']['address'] == 'Adres 1, ulica1, 1/5'
-    assert response_data['data']['description'] == 'Opis 1'
+    assert response_data['data']['description'] == 'Opis landlord 1'
 
 
 def test_register_landlord(client):
@@ -256,7 +257,8 @@ def test_update_landlord_password_missing_token(client, landlord):
     assert response.status_code == 401
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is False
-    assert 'Missing token. Please login or register.' in response_data['message']
+    alert = 'Missing landlord token. Please login or register as landlord.'
+    assert alert in response_data['message']
 
 
 def test_update_landlord_password_invalid_password(client, landlord, landlord_token):
@@ -287,12 +289,12 @@ def test_get_landlords_with_params(client, sample_data):
                                         {
                                         "first_name": "Andrzej", 
                                         "id": 2, 
-                                        "identifier": "02"
+                                        "identifier": "landlord2"
                                         }, 
                                         {
                                         "first_name": "Jan", 
                                         "id": 1, 
-                                        "identifier": "01"
+                                        "identifier": "landlord1"
                                         }
                                     ]
 

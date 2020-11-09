@@ -111,6 +111,9 @@ def delete_flat(landlord_id: int, flat_id):
     flat = Flat.query.get_or_404(flat_id, 
                                 description=f'Flat with id {flat_id} not found')
 
+    if flat.landlord_id != landlord_id:
+        abort(404, description=f'Flat with id {flat_id} not found')
+
     db.session.delete(flat)
     db.session.commit()
 
