@@ -29,6 +29,10 @@ class Landlord(TimestampMixin, db.Model):
     def __repr__(self):
         return f'<Landlord>: {self.first_name} {self.last_name}'
 
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value         
+
     def generate_jwt(self) -> bytes:
         jwt_expired_minutes = current_app.config.get('JWT_EXPIRED_MINUTES', 30)
         payload = {
@@ -51,9 +55,14 @@ class Flat(TimestampMixin, db.Model):
     status = db.Column(db.String(50), default='active')  #active/inactive/sold
     landlord_id = db.Column(db.Integer, db.ForeignKey('landlords.id'), nullable=False)
     landlord = db.relationship('Landlord', back_populates='flats')
+    agreements = db.relationship('Agreement', back_populates='flat')
 
     def __repr__(self):
         return f'id: {self.id} - {self.identifier}'
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value         
 
 
 class Tenant(TimestampMixin, db.Model):
@@ -69,9 +78,14 @@ class Tenant(TimestampMixin, db.Model):
     password = db.Column(db.String(255), nullable=False)
     landlord_id = db.Column(db.Integer, db.ForeignKey('landlords.id'), nullable=False)
     landlord = db.relationship('Landlord', back_populates='tenants')
+    agreements = db.relationship('Agreement', back_populates='tenant')
 
     def __repr__(self):
         return f'<Tenant>: {self.first_name} {self.last_name}'
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value         
 
     def generate_jwt(self) -> bytes:
         jwt_expired_minutes = current_app.config.get('JWT_EXPIRED_MINUTES', 30)
@@ -85,6 +99,36 @@ class Tenant(TimestampMixin, db.Model):
 
     def is_password_valid(self, password: str) -> bool:
         return check_password_hash(self.password, password)
+
+
+class Agreement(TimestampMixin, db.Model):
+    __tablename__ = 'agreements'
+    id = db.Column(db.Integer, primary_key=True)
+    identifier = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    sign_date = db.Column(db.Date, nullable=False)
+    date_from = db.Column(db.Date, nullable=False)
+    date_to = db.Column(db.Date, nullable=False)
+    price_value = db.Column(db.Float, nullable=False)
+    price_period = db.Column(db.String(10), nullable=False)  #'day'/'month'
+    payment_deadline = db.Column(db.Integer, nullable=False)
+    deposit_value = db.Column(db.Float)
+    description = db.Column(db.Text, default=0)
+    flat_id = db.Column(db.Integer, db.ForeignKey('flats.id'), nullable=False)
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
+    flat = db.relationship('Flat', back_populates='agreements')
+    tenant = db.relationship('Tenant', back_populates='agreements')
+
+    def __repr__(self):
+        return f'<Agreement>: {self.identifier}-{self.flat}-{self.tenant}'
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        if param in ['sign_date', 'date_from', 'date_to']:
+            try:
+                value = datetime.strptime(value, '%d-%m-%Y').date()
+            except ValueError:
+                value = None
+        return value
 
 
 class LandlordSchema(Schema):

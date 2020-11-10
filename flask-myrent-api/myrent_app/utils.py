@@ -111,6 +111,9 @@ def apply_filter(model: DefaultMeta, query: BaseQuery) -> BaseQuery:
                     param, operator = match.groups()
                 column_attr = getattr(model, param, None)
                 if column_attr is not None:
+                    value = model.additional_validation(param, value)
+                    if value is None:
+                        continue
                     filter_argument = _get_filter_argument(column_attr, value, operator)
                     query = query.filter(filter_argument)
     return query
