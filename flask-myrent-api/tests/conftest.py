@@ -123,7 +123,7 @@ def tenant2(client, landlord_token):
                     'Authorization': f'Bearer {landlord_token}'
                 })
 
-    return tenant
+    return tenant2
 
 @pytest.fixture
 def tenant2_token(client, tenant2):
@@ -133,5 +133,5 @@ def tenant2_token(client, tenant2):
                                 'password': tenant2['password']
                             })
     response_data = response.get_json()
-    print('dane response data tenant_token: ', response_data)
+    print('dane response data tenant2_token: ', response_data)
     return response_data['token']

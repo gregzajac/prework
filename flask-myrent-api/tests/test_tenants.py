@@ -316,17 +316,249 @@ def test_get_current_tenant(client, tenant, tenant_token):
     assert response_data['data']['landlord']
 
 
-# def test_update_tenant_password_by_landlord(client, landlord, tenant, landlord_token):
-#     response = client.put('/api/v1/tenants/password',
-#                         json={
-#                             'current_password': tenant['password'],
-#                             'new_password': 'newtenantpassword'
-#                         }
-#                         headers={
-#                             'Authorization': f'Bearer {landlord_token}'
-#                         })
-#     response_data = response.get_json()
+def test_update_tenant_password_by_landlord(client, tenant, landlord_token):
+    response = client.put(f'/api/v1/tenants/1/password',
+                        json={
+                            'current_password': tenant['password'],
+                            'new_password': 'newtenantpassword'
+                        },
+                        headers={
+                            'Authorization': f'Bearer {landlord_token}'
+                        })
+    response_data = response.get_json()
 
-#     assert response.status_code == 200
-#     assert response.headers['Content-Type'] == 'application/json'
-#     assert response_data['success'] is True    
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['identifier'] == tenant['identifier']
+    assert response_data['data']['description'] == tenant['description']
+    assert response_data['data']['email'] == tenant['email']
+    assert response_data['data']['first_name'] == tenant['first_name']
+    assert response_data['data']['last_name'] == tenant['last_name']
+    assert response_data['data']['phone'] == tenant['phone']
+    assert response_data['data']['landlord']
+
+
+def test_update_tenant_password_by_tenant(client, tenant, tenant_token):
+    response = client.put(f'/api/v1/tenants/1/password',
+                        json={
+                            'current_password': tenant['password'],
+                            'new_password': 'newtenantpassword'
+                        },
+                        headers={
+                            'Authorization': f'Bearer {tenant_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['identifier'] == tenant['identifier']
+    assert response_data['data']['description'] == tenant['description']
+    assert response_data['data']['email'] == tenant['email']
+    assert response_data['data']['first_name'] == tenant['first_name']
+    assert response_data['data']['last_name'] == tenant['last_name']
+    assert response_data['data']['phone'] == tenant['phone']
+    assert response_data['data']['landlord']
+
+
+def test_update_tenant_password_without_token(client, tenant):
+    response = client.put(f'/api/v1/tenants/1/password',
+                        json={
+                            'current_password': tenant['password'],
+                            'new_password': 'newtenantpassword'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 401
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert response_data['message'] == 'Missing token. Please login or register.'
+
+
+def test_update_tenant_password_by_other_tenant(client, tenant, tenant2_token):
+    response = client.put(f'/api/v1/tenants/1/password',
+                        json={
+                            'current_password': tenant['password'],
+                            'new_password': 'newtenantpassword'
+                        },
+                        headers={
+                            'Authorization': f'Bearer {tenant2_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 404
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert response_data['message'] == 'Incorrect tenant id'
+
+
+def test_update_tenant_data_by_landlord(client, tenant, landlord_token):
+    updated_tenant = {
+        "address": "updatedtestaddress",
+        "description": "updatedtesttenantdescription",
+        "email": "updatedtesttenantmail@wp.pl",
+        "first_name": "updatedtestfirst_name",
+        "identifier": "updatedtesttenant",
+        "last_name": "updatedtestlast_name",
+        "phone": "updatedtestphone"
+    }
+    response = client.put(f'/api/v1/tenants/1/data',
+                        json=updated_tenant,
+                        headers={
+                            'Authorization': f'Bearer {landlord_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['identifier'] == updated_tenant['identifier']
+    assert response_data['data']['description'] == updated_tenant['description']
+    assert response_data['data']['email'] == updated_tenant['email']
+    assert response_data['data']['first_name'] == updated_tenant['first_name']
+    assert response_data['data']['last_name'] == updated_tenant['last_name']
+    assert response_data['data']['phone'] == updated_tenant['phone']
+    assert response_data['data']['landlord']
+
+
+def test_update_tenant_data_by_tenant(client, tenant, tenant_token):
+    updated_tenant = {
+        "address": "updatedtestaddress",
+        "description": "updatedtesttenantdescription",
+        "email": "updatedtesttenantmail@wp.pl",
+        "first_name": "updatedtestfirst_name",
+        "identifier": "updatedtesttenant",
+        "last_name": "updatedtestlast_name",
+        "phone": "updatedtestphone"
+    }
+    response = client.put(f'/api/v1/tenants/1/data',
+                        json=updated_tenant,
+                        headers={
+                            'Authorization': f'Bearer {tenant_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data']['identifier'] == updated_tenant['identifier']
+    assert response_data['data']['description'] == updated_tenant['description']
+    assert response_data['data']['email'] == updated_tenant['email']
+    assert response_data['data']['first_name'] == updated_tenant['first_name']
+    assert response_data['data']['last_name'] == updated_tenant['last_name']
+    assert response_data['data']['phone'] == updated_tenant['phone']
+    assert response_data['data']['landlord']
+
+
+def test_update_tenant_data_by_other_tenant(client, tenant, tenant2_token):
+    updated_tenant = {
+        "address": "updatedtestaddress",
+        "description": "updatedtesttenantdescription",
+        "email": "updatedtesttenantmail@wp.pl",
+        "first_name": "updatedtestfirst_name",
+        "identifier": "updatedtesttenant",
+        "last_name": "updatedtestlast_name",
+        "phone": "updatedtestphone"
+    }
+    response = client.put(f'/api/v1/tenants/1/data',
+                        json=updated_tenant,
+                        headers={
+                            'Authorization': f'Bearer {tenant2_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 404
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert response_data['message'] == 'Incorrect tenant id'
+
+
+@pytest.mark.parametrize(
+    'data,missing_field',
+    [
+        (
+            {"email": "updatedtesttenantmail@wp.pl",
+            "first_name": "updatedtestfirst_name", "last_name": "updatedtestlast_name",
+            "address": "updatedtestaddress", "phone": "updatedtestphone"
+            }, 
+            'identifier'
+        ),        
+        (
+            {"identifier": "updatedtesttenant",
+            "first_name": "updatedtestfirst_name", "last_name": "updatedtestlast_name",
+            "address": "updatedtestaddress", "phone": "updatedtestphone"
+            }, 
+            'email'
+        ),
+        (
+            {"identifier": "updatedtesttenant", "email": "updatedtesttenantmail@wp.pl",
+            "last_name": "updatedtestlast_name",
+            "address": "updatedtestaddress", "phone": "updatedtestphone"
+            }, 
+            'first_name'
+        ),
+        (           
+            {"identifier": "updatedtesttenant", "email": "updatedtesttenantmail@wp.pl",
+            "first_name": "updatedtestfirst_name",
+            "address": "updatedtestaddress", "phone": "updatedtestphone"
+            }, 
+            'last_name'
+        ),         
+        (           
+            {"identifier": "updatedtesttenant", "email": "updatedtesttenantmail@wp.pl",
+            "first_name": "updatedtestfirst_name", "last_name": "updatedtestlast_name",
+            "phone": "updatedtestphone"
+            }, 
+            'address'
+        ),        
+        (           
+            {"identifier": "updatedtesttenant", "email": "updatedtesttenantmail@wp.pl",
+            "first_name": "updatedtestfirst_name", "last_name": "updatedtestlast_name",
+            "address": "updatedtestaddress"
+            }, 
+            'phone'
+        )
+
+    ]
+)
+def test_update_tenant_data_missing_data(client, tenant, tenant_token,
+                                         data, missing_field):
+    response = client.put(f'/api/v1/tenants/1/data',
+                        json=data,
+                        headers={
+                            'Authorization': f'Bearer {tenant_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 400
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert missing_field in response_data['message']
+    assert response_data['message'][missing_field] == ['Missing data for required field.']
+
+
+def test_delete_tenant_by_landlord(client, tenant, landlord_token):
+    response = client.delete(f'/api/v1/tenants/1',
+                        headers={
+                            'Authorization': f'Bearer {landlord_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 200
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is True
+    assert response_data['data'] == 'Tenant with id 1 has been deleted'    
+
+
+def test_delete_tenant_by_tenant(client, tenant, tenant_token):
+    response = client.delete(f'/api/v1/tenants/1',
+                        headers={
+                            'Authorization': f'Bearer {tenant_token}'
+                        })
+    response_data = response.get_json()
+
+    assert response.status_code == 401
+    assert response.headers['Content-Type'] == 'application/json'
+    assert response_data['success'] is False
+    assert response_data['message'] == 'Only landlord functionality.'
