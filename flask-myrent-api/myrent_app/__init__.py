@@ -22,9 +22,11 @@ def create_app(config_name='development'):
     from myrent_app.commands import db_manage_bp 
     from myrent_app.errors import errors_bp
     from myrent_app.tenants import tenants_bp
+    from myrent_app.agreements import agreements_bp
     app.register_blueprint(landlords_bp, url_prefix='/api/v1')
     app.register_blueprint(flats_bp, url_prefix='/api/v1')
     app.register_blueprint(tenants_bp, url_prefix='/api/v1')
+    app.register_blueprint(agreements_bp, url_prefix='/api/v1')
     app.register_blueprint(errors_bp)
     app.register_blueprint(db_manage_bp)
 
