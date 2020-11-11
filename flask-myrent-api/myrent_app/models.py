@@ -27,7 +27,7 @@ class Landlord(TimestampMixin, db.Model):
 
 
     def __repr__(self):
-        return f'<Landlord>: {self.first_name} {self.last_name}'
+        return f'<landlord>: {self.first_name} {self.last_name}'
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
@@ -58,7 +58,7 @@ class Flat(TimestampMixin, db.Model):
     agreements = db.relationship('Agreement', back_populates='flat')
 
     def __repr__(self):
-        return f'id: {self.id} - {self.identifier}'
+        return f'<flat>: {self.id} {self.identifier}'
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
@@ -81,7 +81,7 @@ class Tenant(TimestampMixin, db.Model):
     agreements = db.relationship('Agreement', back_populates='tenant')
 
     def __repr__(self):
-        return f'<Tenant>: {self.first_name} {self.last_name}'
+        return f'<tenant>: {self.first_name} {self.last_name}'
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
@@ -119,7 +119,7 @@ class Agreement(TimestampMixin, db.Model):
     tenant = db.relationship('Tenant', back_populates='agreements')
 
     def __repr__(self):
-        return f'<Agreement>: {self.identifier}-{self.flat}-{self.tenant}'
+        return f'<agreement>: {self.identifier} - {self.flat} - {self.tenant}'
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
@@ -188,14 +188,37 @@ class TenantSchema(Schema):
     created = fields.DateTime(dump_only=True)
     updated = fields.DateTime(dump_only=True)    
 
+
 class TenantUpdatePasswordSchema(Schema):
     current_password = fields.String(required=True, load_only=True, 
                             validate=validate.Length(min=6, max=255))
     new_password = fields.String(required=True, load_only=True, 
                         validate=validate.Length(min=6, max=255))
 
+
+class AgreementSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    identifier = fields.String(required=True, validate=validate.Length(min=3, max=50))
+    sign_date = fields.Date('%d-%m-%Y', required=True)
+    date_from = fields.Date('%d-%m-%Y', required=True)
+    date_to = fields.Date('%d-%m-%Y', required=True)
+    price_value = fields.Float(required=True)
+    price_period = fields.String(required=True, validate=validate.Length(max=10))
+    payment_deadline = fields.Integer(required=True)
+    deposit_value = fields.Float()
+    description = fields.String()
+    flat_id = fields.Integer(load_only=True)
+    tenant_id = fields.Integer(load_only=True)
+    flat = fields.Nested(lambda: FlatSchema(only=['identifier',
+                                                    'address']))
+    tenant = fields.Nested(lambda: TenantSchema(only=['identifier',
+                                                    'first_name',
+                                                    'last_name']))
+
+
 landlord_schema = LandlordSchema()
 landlord_update_password_schema = LandlordUpdatePasswordSchema()
 flat_schema = FlatSchema()
 tenant_schema = TenantSchema()
 tenant_update_password_schema = TenantUpdatePasswordSchema()
+agreement_schema = AgreementSchema()
