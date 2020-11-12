@@ -91,9 +91,9 @@ def test_get_all_landlord_flats(client, sample_data):
     assert len(response_data['data']) == 2
 
 
-def test_create_flat(client, landlord, flat, landlord_token):
+def test_create_flat(client, landlord, flat_data, landlord_token):
     response = client.post('/api/v1/flats', 
-                        json=flat,
+                        json=flat_data,
                         headers={
                             'Authorization': f'Bearer {landlord_token}'
                         })
@@ -102,8 +102,8 @@ def test_create_flat(client, landlord, flat, landlord_token):
     assert response.status_code == 201
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is True
-    assert response_data['data']['identifier'] == flat['identifier']
-    assert response_data['data']['address'] == flat['address']
+    assert response_data['data']['identifier'] == flat_data['identifier']
+    assert response_data['data']['address'] == flat_data['address']
     assert response_data['data']['status'] == 'active'
     assert response_data['data']['landlord']['identifier'] == landlord['identifier']
     assert response_data['data']['landlord']['first_name'] == landlord['first_name']
@@ -133,9 +133,9 @@ def test_create_flat_missing_data(client, landlord_token,
     assert 'Missing data for required field.' in response_data['message'][missing_field]
 
 
-def test_update_flat(client, landlord_token, landlord, flat):
+def test_update_flat(client, landlord_token, landlord, flat_data):
     response = client.post('/api/v1/flats', 
-                            json=flat,
+                            json=flat_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })
@@ -175,10 +175,10 @@ def test_update_flat(client, landlord_token, landlord, flat):
         ({'address': 'updatedaddress'}, 'identifier')
     ]
 )
-def test_update_flat_missing_data(client, landlord_token, flat,
+def test_update_flat_missing_data(client, landlord_token, flat_data,
                                     data, missing_field):
     response = client.post('/api/v1/flats', 
-                            json=flat,
+                            json=flat_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })
@@ -200,9 +200,9 @@ def test_update_flat_missing_data(client, landlord_token, flat,
     assert 'Missing data for required field.' in response_data['message'][missing_field]
 
 
-def test_update_flat_wrong_status(client, landlord_token, flat):
+def test_update_flat_wrong_status(client, landlord_token, flat_data):
     response = client.post('/api/v1/flats', 
-                            json=flat,
+                            json=flat_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })
@@ -229,9 +229,9 @@ def test_update_flat_wrong_status(client, landlord_token, flat):
     assert response_data['message'] == 'Allowed statuses: active, inactive, sold'
 
 
-def test_update_flat_existing_identifier(client, landlord_token, flat, flat_2):
+def test_update_flat_existing_identifier(client, landlord_token, flat_data, flat_2_data):
     response = client.post('/api/v1/flats', 
-                            json=flat,
+                            json=flat_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })
@@ -239,7 +239,7 @@ def test_update_flat_existing_identifier(client, landlord_token, flat, flat_2):
     assert response.get_json()['data']['id'] == 1
 
     response = client.post('/api/v1/flats', 
-                            json=flat_2,
+                            json=flat_2_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })
@@ -247,7 +247,7 @@ def test_update_flat_existing_identifier(client, landlord_token, flat, flat_2):
     assert response.get_json()['data']['id'] == 2    
 
     updated_flat = {
-        "identifier": flat['identifier'],
+        "identifier": flat_data['identifier'],
         "address": "updated address",
         "description": "updated description"
     }
@@ -267,9 +267,9 @@ def test_update_flat_existing_identifier(client, landlord_token, flat, flat_2):
     assert response_data['message'] == description
 
 
-def test_delete_flat(client, landlord_token, flat):
+def test_delete_flat(client, landlord_token, flat_data):
     response = client.post('/api/v1/flats', 
-                            json=flat,
+                            json=flat_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })
@@ -289,9 +289,9 @@ def test_delete_flat(client, landlord_token, flat):
     assert response_data['data'] == f'Flat with id {flat_id} has been deleted'
 
 
-def test_delete_flat_missing_token(client, landlord_token, flat):
+def test_delete_flat_missing_token(client, landlord_token, flat_data):
     response = client.post('/api/v1/flats', 
-                            json=flat,
+                            json=flat_data,
                             headers={
                                 'Authorization': f'Bearer {landlord_token}'
                             })

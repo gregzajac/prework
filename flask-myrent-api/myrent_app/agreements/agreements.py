@@ -25,7 +25,8 @@ def get_agreements(id_model_tuple: tuple):
 
     return jsonify({
         'success': True,
-        'data': agreements
+        'data': agreements,
+        'number_of_records': len(agreements)
     })
 
 

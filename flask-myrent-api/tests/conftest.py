@@ -56,15 +56,32 @@ def sample_data(app):
 
 
 @pytest.fixture
-def flat():
+def flat_data():
     return {
         'identifier': 'testidentifier',
         'address': 'testaddress',
         'description': 'testdescription'
     }
 
+
 @pytest.fixture
-def flat_2():
+def flat(client, landlord_token):
+    flat = {
+        'identifier': 'testidentifier',
+        'address': 'testaddress',
+        'description': 'testdescription'        
+    }
+
+    client.post('/api/v1/flats',
+                json=flat,
+                headers={
+                    'Authorization': f'Bearer {landlord_token}'
+                })
+    return flat
+
+
+@pytest.fixture
+def flat_2_data():
     return {
         'identifier': 'testidentifier2',
         'address': 'testaddress2',
@@ -133,5 +150,28 @@ def tenant2_token(client, tenant2):
                                 'password': tenant2['password']
                             })
     response_data = response.get_json()
-    print('dane response data tenant2_token: ', response_data)
+
     return response_data['token']
+
+@pytest.fixture
+def agreement_data():
+    return {
+        "identifier": "testagreement",
+        "sign_date": "01-01-2020",
+        "date_from": "01-01-2020",
+        "date_to": "30-06-2022",
+        "price_value": 3000,
+        "price_period": "month",
+        "payment_deadline": 10,
+        "deposit_value": 7000,
+        "description": "testdescription"
+    }
+
+@pytest.fixture
+def agreement(client, flat, tenant, agreement_data, landlord_token):
+    client.post('/api/v1/agreements/1/1', 
+                json=agreement_data,
+                headers={
+                    'Authorization': f'Bearer {landlord_token}'
+                })
+    return agreement_data
