@@ -37,7 +37,7 @@ def token_landlord_required(func):
                                 algorithms=['HS256'])
 
             if payload['model'] != 'landlords':
-                abort(401, description='Only landlord functionality.')
+                abort(401, description='Only landlord functionality')
         except jwt.ExpiredSignatureError:
             abort(401, description='Expired token. Please login as landlord to get new token.')
         except jwt.InvalidTokenError:

@@ -53,20 +53,20 @@ def get_agreement(id_model_tuple: tuple, agreement_id: int):
 @use_args(AgreementSchema(exclude=['flat_id', 'tenant_id']), error_status_code=400)
 def create_agreement(landlord_id: int, args: dict, flat_id: int, tenant_id: int):
     flat = Flat.query.get_or_404(flat_id, 
-                        description=f'Flat with id {flat_id} not found.')
+                        description=f'Flat with id {flat_id} not found')
     if flat.landlord_id != landlord_id:
-        abort(404, description=f'Flat with id {flat_id} not found.')
+        abort(404, description=f'Flat with id {flat_id} not found')
 
     tenant = Tenant.query.get_or_404(tenant_id, 
-                            description=f'Tenant with id {tenant_id} not found.')
+                            description=f'Tenant with id {tenant_id} not found')
     if tenant.landlord_id != landlord_id:
-        abort(404, description=f'Tenant with id {tenant_id} not found.')
+        abort(404, description=f'Tenant with id {tenant_id} not found')
 
     agreement_with_identifier = Agreement.query.filter(
                                         Agreement.identifier == args['identifier']
                                         ).first()                   
     if agreement_with_identifier is not None:
-        abort(409, description=f'Agreement with identifier {args["identifier"]} already exists.')             
+        abort(409, description=f'Agreement with identifier {args["identifier"]} already exists')             
 
     agreement = Agreement(flat_id = flat_id, tenant_id = tenant_id, **args)
 
@@ -76,24 +76,64 @@ def create_agreement(landlord_id: int, args: dict, flat_id: int, tenant_id: int)
     return jsonify({
         'success': True,
         'data': agreement_schema.dump(agreement)
+    }), 201
+
+
+@agreements_bp.route('/agreements/<int:agreement_id>', methods=['PUT'])
+@token_landlord_required
+@validate_json_content_type
+@use_args(AgreementSchema(exclude=['flat_id', 'tenant_id']), error_status_code=400)
+def update_agreement(landlord_id: int, args: dict, agreement_id: int):
+    agreement = Agreement.query.get_or_404(agreement_id, 
+                    description=f'Agreement with id {agreement_id} not found')
+
+    if agreement.flat.landlord_id != landlord_id:
+        abort(404, description=f'Agreement with id {agreement_id} not found')
+
+    agreement_with_this_identifier = Agreement.query.filter(
+                                                        Agreement.identifier == args['identifier']
+                                                    ).first()
+    if agreement_with_this_identifier is not None and \
+        agreement_with_this_identifier.identifier != args['identifier']:
+        abort(409, description=f'Agreement with identifier {args["identifier"]} already exists')
+
+    agreement.identifier = args['identifier']
+    agreement.sign_date = args['sign_date']
+    agreement.date_from = args['date_from']
+    agreement.date_to = args['date_to']
+    agreement.price_value = args['price_value']
+    agreement.price_period = args['price_period']
+    agreement.payment_deadline = args['payment_deadline']
+
+    deposit_value = args.get('deposit_value')
+    if deposit_value is not None:
+        agreement.deposit_value = deposit_value
+
+    description = args.get('description')
+    if description is not None:
+        agreement.description = description
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'data': agreement_schema.dump(agreement)
     })
 
 
-#landlord token
-@agreements_bp.route('/agreements/<int:agreement_id>', 
-                    methods=['PUT'])
-def update_agreement(agreement_id: int):
+@agreements_bp.route('/agreements/<int:agreement_id>', methods=['DELETE'])
+@token_landlord_required
+def delete_agreement(landlord_id: int, agreement_id: int):
+    agreement = Agreement.query.get_or_404(agreement_id, 
+                    description=f'Agreement with id {agreement_id} not found')
+
+    if agreement.flat.landlord_id != landlord_id:
+        abort(404, description=f'Agreement with id {agreement_id} not found')
+
+    db.session.delete(agreement)
+    db.session.commit()
+
     return jsonify({
         'success': True,
-        'data': f'Aktualizuj umowę dla agreement id {agreement_id}'
-    })
-
-
-#landlord token
-@agreements_bp.route('/agreements/<int:agreement_id>', 
-                    methods=['DELETE'])
-def delete_agreement(agreement_id: int):
-    return jsonify({
-        'success': True,
-        'data': f'Usuń umowę o id {agreement_id}'
+        'data': f'Agreement with id {agreement_id} has been deleted'
     })
