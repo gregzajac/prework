@@ -48,11 +48,13 @@ def get_agreement(id_model_tuple: tuple, agreement_id: int):
     })
 
 
-@agreements_bp.route('/agreements/<int:flat_id>/<int:tenant_id>', methods=['POST'])
+@agreements_bp.route('/flats/<int:flat_id>/tenants/<int:tenant_id>/agreements', 
+                      methods=['POST'])
 @token_landlord_required
 @validate_json_content_type
 @use_args(AgreementSchema(exclude=['flat_id', 'tenant_id']), error_status_code=400)
 def create_agreement(landlord_id: int, args: dict, flat_id: int, tenant_id: int):
+
     flat = Flat.query.get_or_404(flat_id, 
                         description=f'Flat with id {flat_id} not found')
     if flat.landlord_id != landlord_id:
@@ -69,7 +71,7 @@ def create_agreement(landlord_id: int, args: dict, flat_id: int, tenant_id: int)
     if agreement_with_identifier is not None:
         abort(409, description=f'Agreement with identifier {args["identifier"]} already exists')             
 
-    agreement = Agreement(flat_id = flat_id, tenant_id = tenant_id, **args)
+    agreement = Agreement(flat_id=flat_id, tenant_id=tenant_id, **args)
 
     db.session.add(agreement)
     db.session.commit()

@@ -137,7 +137,7 @@ class Settlement(TimestampMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)
     value = db.Column(db.Float, nullable=False)
-    date = db.Column(db.Date, nullable=False)
+    date = db.Column(db.Date, nullable=False, default=datetime.now().date())
     description = db.Column(db.Text)
     agreement_id = db.Column(db.Integer, db.ForeignKey('agreements.id'), nullable=False)
     agreement = db.relationship('Agreement', back_populates='settlements')
@@ -238,6 +238,23 @@ class AgreementSchema(Schema):
     tenant = fields.Nested(lambda: TenantSchema(only=['identifier',
                                                     'first_name',
                                                     'last_name']))
+    created = fields.DateTime(dump_only=True)
+    updated = fields.DateTime(dump_only=True) 
+
+
+class SettlementSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    type = fields.String(required=True, validate=validate.OneOf(
+                                                            ['charge', 
+                                                            'payment']))
+    value = fields.Float()
+    date = fields.Date('%d-%m-%Y', required=True)
+    description = fields.String()
+    agreement_id = fields.Integer(load_only=True)
+    agreement = fields.Nested(lambda: AgreementSchema(only=['identifier',
+                                                            'sign_date']))
+    created = fields.DateTime(dump_only=True)
+    updated = fields.DateTime(dump_only=True) 
 
 
 landlord_schema = LandlordSchema()
@@ -246,3 +263,4 @@ flat_schema = FlatSchema()
 tenant_schema = TenantSchema()
 tenant_update_password_schema = TenantUpdatePasswordSchema()
 agreement_schema = AgreementSchema()
+settlement_schema = SettlementSchema()

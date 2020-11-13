@@ -2,7 +2,7 @@ import os, json
 from datetime import datetime
 from myrent_app import db
 from myrent_app.commands import db_manage_bp
-from myrent_app.models import Landlord, Flat, Tenant, Agreement
+from myrent_app.models import Landlord, Flat, Tenant, Agreement, Settlement
 from myrent_app.utils import generate_hashed_password
 
 
@@ -47,6 +47,12 @@ def add_data():
             item['date_to'] = datetime.strptime(item['date_to'], '%d-%m-%Y').date()
             agreement = Agreement(**item)
             db.session.add(agreement)
+
+        data_json = load_json_data('settlements.json')
+        for item in data_json:
+            item['date'] = datetime.strptime(item['date'], '%d-%m-%Y').date()
+            settlement = Settlement(**item)
+            db.session.add(settlement)            
         
         db.session.commit()
         print('Data has been added to database')
@@ -58,6 +64,8 @@ def add_data():
 def remove_data():
     """Remove all data from the database"""
     try:
+        db.session.execute('DELETE FROM settlements')
+        db.session.execute('ALTER TABLE settlements AUTO_INCREMENT=1')        
         db.session.execute('DELETE FROM agreements')
         db.session.execute('ALTER TABLE agreements AUTO_INCREMENT=1')        
         db.session.execute('DELETE FROM flats')
