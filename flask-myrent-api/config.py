@@ -15,6 +15,7 @@ class Config:
     JWT_EXPIRED_MINUTES = 30
     PER_PAGE = 5
     CORS_HEADERS = 'Content-Type'
+    VERSION = 'v1'
 
 
 class DevelopmentConfig(Config):
