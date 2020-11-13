@@ -22,7 +22,7 @@ def test_get_landlord_tenants_no_records_tenant_registered(client, tenant_token)
     response_data = response.get_json()
     expected_result = {
         'success': False,
-        'message': 'Only landlord functionality.'
+        'message': 'Only landlord functionality'
     }
 
     assert response.status_code == 401
@@ -146,7 +146,7 @@ def test_create_tenant_with_tenant_token(client, tenant_token):
     assert response.status_code == 401
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is False
-    alert = 'Only landlord functionality.'
+    alert = 'Only landlord functionality'
     assert response_data['message'] == alert
 
 
@@ -561,4 +561,4 @@ def test_delete_tenant_by_tenant(client, tenant, tenant_token):
     assert response.status_code == 401
     assert response.headers['Content-Type'] == 'application/json'
     assert response_data['success'] is False
-    assert response_data['message'] == 'Only landlord functionality.'
+    assert response_data['message'] == 'Only landlord functionality'

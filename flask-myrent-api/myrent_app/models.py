@@ -111,12 +111,13 @@ class Agreement(TimestampMixin, db.Model):
     price_value = db.Column(db.Float, nullable=False)
     price_period = db.Column(db.String(10), nullable=False)  #'day'/'month'
     payment_deadline = db.Column(db.Integer, nullable=False)
-    deposit_value = db.Column(db.Float)
-    description = db.Column(db.Text, default=0)
+    deposit_value = db.Column(db.Float, default=0)
+    description = db.Column(db.Text)
     flat_id = db.Column(db.Integer, db.ForeignKey('flats.id'), nullable=False)
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
     flat = db.relationship('Flat', back_populates='agreements')
     tenant = db.relationship('Tenant', back_populates='agreements')
+    settlements = db.relationship('Settlement', back_populates='agreement')
 
     def __repr__(self):
         return f'<agreement>: {self.identifier} - {self.flat} - {self.tenant}'
@@ -124,6 +125,29 @@ class Agreement(TimestampMixin, db.Model):
     @staticmethod
     def additional_validation(param: str, value: str) -> str:
         if param in ['sign_date', 'date_from', 'date_to']:
+            try:
+                value = datetime.strptime(value, '%d-%m-%Y').date()
+            except ValueError:
+                value = None
+        return value
+
+
+class Settlement(TimestampMixin, db.Model):
+    __tablename__ = 'settlements'
+    id = db.Column(db.Integer, primary_key=True)
+    type = db.Column(db.String(50), nullable=False)
+    value = db.Column(db.Float, nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    description = db.Column(db.Text)
+    agreement_id = db.Column(db.Integer, db.ForeignKey('agreements.id'), nullable=False)
+    agreement = db.relationship('Agreement', back_populates='settlements')
+
+    def __repr__(self):
+        return f'<settlement>: {self.id} {self.agreement}'
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        if param == 'date':
             try:
                 value = datetime.strptime(value, '%d-%m-%Y').date()
             except ValueError:
