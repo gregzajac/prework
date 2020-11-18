@@ -25,12 +25,14 @@ def create_app(config_name='development'):
     from myrent_app.tenants import tenants_bp
     from myrent_app.agreements import agreements_bp
     from myrent_app.settlements import settlements_bp
+    from myrent_app.pictures import pictures_bp
 
     app.register_blueprint(landlords_bp, url_prefix=f'/api/{version}')
     app.register_blueprint(flats_bp, url_prefix=f'/api/{version}')
     app.register_blueprint(tenants_bp, url_prefix=f'/api/{version}')
     app.register_blueprint(agreements_bp, url_prefix=f'/api/{version}')
     app.register_blueprint(settlements_bp, url_prefix=f'/api/{version}')
+    app.register_blueprint(pictures_bp, url_prefix=f'/api/{version}')
     app.register_blueprint(errors_bp)
     app.register_blueprint(db_manage_bp)
 

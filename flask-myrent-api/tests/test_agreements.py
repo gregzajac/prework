@@ -96,7 +96,7 @@ def test_get_agreement_landlord_token(client, sample_data):
     assert response.status_code == 200
     assert response_data['success'] is True
     assert response_data['data']['identifier'] == 'Umowa1'
-    assert len(response_data['data']) == 12
+    assert len(response_data['data']) == 14
  
 
 def test_get_agreement_other_landlord(client, sample_data):
@@ -139,7 +139,7 @@ def test_get_agreement_tenant_token(client, sample_data):
     assert response.status_code == 200
     assert response_data['success'] is True
     assert response_data['data']['identifier'] == 'Umowa1'
-    assert len(response_data['data']) == 12
+    assert len(response_data['data']) == 14
 
 
 def test_get_agreement_other_tenant(client, sample_data):
@@ -173,7 +173,7 @@ def test_create_agreement(client, tenant, flat_data, agreement_data, landlord_to
 
     assert response_data['data']['id'] == 1
 
-    response = client.post('/api/v1/agreements/1/1',
+    response = client.post('/api/v1/flats/1/tenants/1/agreements',
                         json=agreement_data,
                         headers={
                             'Authorization': f'Bearer {landlord_token}'
@@ -214,7 +214,7 @@ def test_create_agreement_no_token(client, tenant, flat_data, agreement_data,
 
     assert response_data['data']['id'] == 1
 
-    response = client.post('/api/v1/agreements/1/1', json=agreement_data)
+    response = client.post('/api/v1/flats/1/tenants/1/agreements', json=agreement_data)
     response_data = response.get_json()
 
     assert response.status_code == 401
@@ -235,7 +235,7 @@ def test_create_agreement_tenant_token(client, tenant, flat_data, agreement_data
 
     assert response_data['data']['id'] == 1
 
-    response = client.post('/api/v1/agreements/1/1', 
+    response = client.post('/api/v1/flats/1/tenants/1/agreements', 
                         json=agreement_data,
                         headers={
                             'Authorization': f'Bearer {tenant_token}'
@@ -258,7 +258,7 @@ def test_create_agreement_wrong_flat(client, sample_data, agreement_data):
 
     assert token
 
-    response = client.post('/api/v1/agreements/2/1',
+    response = client.post('/api/v1/flats/2/tenants/1/agreements',
                         json=agreement_data,
                         headers={
                             'Authorization': f'Bearer {token}'
@@ -281,7 +281,7 @@ def test_create_agreement_wrong_tenant(client, sample_data, agreement_data):
 
     assert token
 
-    response = client.post('/api/v1/agreements/1/2',
+    response = client.post('/api/v1/flats/1/tenants/2/agreements',
                         json=agreement_data,
                         headers={
                             'Authorization': f'Bearer {token}'

@@ -16,10 +16,12 @@ class Config:
     PER_PAGE = 5
     CORS_HEADERS = 'Content-Type'
     VERSION = 'v1'
+    UPLOAD_FOLDER = ''
 
 
 class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+    UPLOAD_FOLDER = base_dir / 'static' / 'pictures'
 
 
 class TestingConfig(Config):

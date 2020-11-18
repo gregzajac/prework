@@ -56,9 +56,26 @@ class Flat(TimestampMixin, db.Model):
     landlord_id = db.Column(db.Integer, db.ForeignKey('landlords.id'), nullable=False)
     landlord = db.relationship('Landlord', back_populates='flats')
     agreements = db.relationship('Agreement', back_populates='flat')
+    pictures = db.relationship('Picture', back_populates='flat')
 
     def __repr__(self):
         return f'<flat>: {self.id} {self.identifier}'
+
+    @staticmethod
+    def additional_validation(param: str, value: str) -> str:
+        return value         
+
+
+class Picture(TimestampMixin, db.Model):
+    __tablename__ = 'pictures'
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(50), unique=True, nullable = False)
+    description = db.Column(db.Text)
+    flat_id = db.Column(db.Integer, db.ForeignKey('flats.id'), nullable=False)
+    flat = db.relationship('Flat', back_populates='pictures')
+
+    def __repr__(self):
+        return f'<picture>: {self.filename}'
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:

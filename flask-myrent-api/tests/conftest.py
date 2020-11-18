@@ -169,7 +169,7 @@ def agreement_data():
 
 @pytest.fixture
 def agreement(client, flat, tenant, agreement_data, landlord_token):
-    client.post('/api/v1/agreements/1/1', 
+    client.post('/api/v1/flats/1/tenants/1/agreements', 
                 json=agreement_data,
                 headers={
                     'Authorization': f'Bearer {landlord_token}'
