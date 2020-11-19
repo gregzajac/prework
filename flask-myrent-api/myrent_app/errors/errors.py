@@ -23,7 +23,6 @@ class ErrorResponse:
 
 @errors_bp.app_errorhandler(400)
 def bad_request_error(err):
-    
     messages = err.data.get('messages', {}).get('json', {})
     return ErrorResponse(messages, 400).to_response()
 
@@ -40,6 +39,10 @@ def conflict_error(err):
     return ErrorResponse(err.description, 409).to_response()
 
 @errors_bp.app_errorhandler(415)
+def unsupported_media_type_error(err):
+    return ErrorResponse(err.description, 415).to_response()
+
+@errors_bp.app_errorhandler(422)
 def unsupported_media_type_error(err):
     return ErrorResponse(err.description, 415).to_response()
 

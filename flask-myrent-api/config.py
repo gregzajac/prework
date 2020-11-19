@@ -9,14 +9,14 @@ load_dotenv(env_file)
 
 
 class Config:
+    VERSION = 'v1'
     SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = ''
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_EXPIRED_MINUTES = 30
     PER_PAGE = 5
     CORS_HEADERS = 'Content-Type'
-    VERSION = 'v1'
-    UPLOAD_FOLDER = ''
+    ALLOWED_PICTURE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
 
 
 class DevelopmentConfig(Config):

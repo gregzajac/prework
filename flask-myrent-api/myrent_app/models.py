@@ -69,13 +69,14 @@ class Flat(TimestampMixin, db.Model):
 class Picture(TimestampMixin, db.Model):
     __tablename__ = 'pictures'
     id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(50), unique=True, nullable = False)
+    name = db.Column(db.String(50), nullable = False)
+    data = db.Column(db.LargeBinary(length=(2**32)-1), nullable=False)
     description = db.Column(db.Text)
     flat_id = db.Column(db.Integer, db.ForeignKey('flats.id'), nullable=False)
     flat = db.relationship('Flat', back_populates='pictures')
 
     def __repr__(self):
-        return f'<picture>: {self.filename}'
+        return f'<picture>: {self.id} - {self.name}'
 
     @staticmethod
     def additional_validation(param: str, value: str) -> str:

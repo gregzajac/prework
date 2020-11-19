@@ -269,3 +269,10 @@ def upload():
     except:
         raise
         raise InvalidUsage('Failed to upload image', status_code=500)
+
+------------------------------------------------------------------------------
+curl -i -Ffiledata=@file.jpg -Fdata='{"username":"user1", "password":"password"}'  http://localhost:5000/my_app/api/users
+
+
+
+curl -i -F file=@narrowpark.jpg -F description='opis_zdjecia'  http://localhost:5000/api/v1/flats/1/pictures

@@ -146,3 +146,8 @@ def get_pagination(query: BaseQuery, func_name: str) -> Tuple[list, dict]:
 
 def generate_hashed_password(password: str) -> str:
     return generate_password_hash(password)
+
+
+def allowed_picture(filename: str) -> bool:
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in current_app.config.get('ALLOWED_PICTURE_EXTENSIONS')    

@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <title>File Upload</title>
+  </head>
+  <body>
+    <h1>File Upload</h1>
+    <form method="POST" action="/api/v1/flats/1/pictures" enctype="multipart/form-data">
+      <p><input type="file" name="picture"></p>
+      <p><input type="text" name="description"></p>
+      <p><input type="submit" value="Submit"></p>
+    </form>
+  </body>
+</html>
