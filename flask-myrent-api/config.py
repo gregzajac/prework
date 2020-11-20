@@ -16,12 +16,13 @@ class Config:
     JWT_EXPIRED_MINUTES = 30
     PER_PAGE = 5
     CORS_HEADERS = 'Content-Type'
-    ALLOWED_PICTURE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif']
+    ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 
 
 class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
-    UPLOAD_FOLDER = base_dir / 'static' / 'pictures'
+    UPLOAD_FOLDER = base_dir / 'uploads'
 
 
 class TestingConfig(Config):

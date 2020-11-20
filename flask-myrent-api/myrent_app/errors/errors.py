@@ -23,7 +23,10 @@ class ErrorResponse:
 
 @errors_bp.app_errorhandler(400)
 def bad_request_error(err):
-    messages = err.data.get('messages', {}).get('json', {})
+    if err.description:
+        messages = err.description
+    else:
+        messages = err.data.get('messages', {}).get('json', {})
     return ErrorResponse(messages, 400).to_response()
 
 @errors_bp.app_errorhandler(401)

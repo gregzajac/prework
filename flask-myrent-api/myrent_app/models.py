@@ -69,8 +69,8 @@ class Flat(TimestampMixin, db.Model):
 class Picture(TimestampMixin, db.Model):
     __tablename__ = 'pictures'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable = False)
-    data = db.Column(db.LargeBinary(length=(2**32)-1), nullable=False)
+    name = db.Column(db.String(50), unique=True, nullable = False)
+    path = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     flat_id = db.Column(db.Integer, db.ForeignKey('flats.id'), nullable=False)
     flat = db.relationship('Flat', back_populates='pictures')
@@ -205,9 +205,10 @@ class FlatSchema(Schema):
     description = fields.String()
     status = fields.String()
     landlord_id = fields.Integer(load_only=True)
-    landlord = fields.Nested(lambda: LandlordSchema(only=['identifier', 
-                                                         'first_name', 
-                                                         'last_name']))
+    landlord = fields.Nested(lambda: LandlordSchema(only=['id',
+                                                        'identifier', 
+                                                        'first_name', 
+                                                        'last_name']))
     created = fields.DateTime(dump_only=True)
     updated = fields.DateTime(dump_only=True)
 
@@ -224,9 +225,10 @@ class TenantSchema(Schema):
     password = fields.String(load_only=True, required=True, 
                     validate=validate.Length(min=6, max=255))
     landlord_id = fields.Integer(load_only=True)
-    landlord = fields.Nested(lambda: LandlordSchema(only=['identifier', 
-                                                         'first_name', 
-                                                         'last_name']))
+    landlord = fields.Nested(lambda: LandlordSchema(only=['id',
+                                                        'identifier', 
+                                                        'first_name', 
+                                                        'last_name']))
     created = fields.DateTime(dump_only=True)
     updated = fields.DateTime(dump_only=True)    
 
@@ -251,9 +253,11 @@ class AgreementSchema(Schema):
     description = fields.String()
     flat_id = fields.Integer(load_only=True)
     tenant_id = fields.Integer(load_only=True)
-    flat = fields.Nested(lambda: FlatSchema(only=['identifier',
-                                                    'address']))
-    tenant = fields.Nested(lambda: TenantSchema(only=['identifier',
+    flat = fields.Nested(lambda: FlatSchema(only=['id',
+                                                'identifier',
+                                                'address']))
+    tenant = fields.Nested(lambda: TenantSchema(only=['id',
+                                                    'identifier',
                                                     'first_name',
                                                     'last_name']))
     created = fields.DateTime(dump_only=True)
@@ -269,10 +273,24 @@ class SettlementSchema(Schema):
     date = fields.Date('%d-%m-%Y', required=True)
     description = fields.String()
     agreement_id = fields.Integer(load_only=True)
-    agreement = fields.Nested(lambda: AgreementSchema(only=['identifier',
-                                                            'sign_date']))
+    agreement = fields.Nested(lambda: AgreementSchema(only=['id',
+                                                        'identifier',
+                                                        'sign_date']))
     created = fields.DateTime(dump_only=True)
     updated = fields.DateTime(dump_only=True) 
+
+
+class PictureSchema(Schema):
+    id = fields.Integer(dump_only=True)
+    name = fields.String(required=True, validate=validate.Length(max=50))
+    path = fields.String(required=True, validate=validate.Length(max=255))
+    path = fields.String()
+    flat_id = fields.Integer(load_only=True)
+    flat = fields.Nested(lambda: FlatSchema(only=['id',
+                                                'identifier',
+                                                'address']))
+    created = fields.DateTime(dump_only=True)
+    updated = fields.DateTime(dump_only=True)                                                    
 
 
 landlord_schema = LandlordSchema()
@@ -282,3 +300,4 @@ tenant_schema = TenantSchema()
 tenant_update_password_schema = TenantUpdatePasswordSchema()
 agreement_schema = AgreementSchema()
 settlement_schema = SettlementSchema()
+picture_schema = PictureSchema()

@@ -150,4 +150,4 @@ def generate_hashed_password(password: str) -> str:
 
 def allowed_picture(filename: str) -> bool:
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in current_app.config.get('ALLOWED_PICTURE_EXTENSIONS')    
+           filename.rsplit('.', 1)[1].lower() in current_app.config.get('ALLOWED_EXTENSIONS')    
