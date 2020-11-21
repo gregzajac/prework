@@ -1,16 +1,33 @@
 import os, json
+from shutil import copyfile
 from datetime import datetime
+from flask import current_app
+
 from myrent_app import db
 from myrent_app.commands import db_manage_bp
-from myrent_app.models import Landlord, Flat, Tenant, Agreement, Settlement
+from myrent_app.models import Landlord, Flat, Tenant, Agreement, \
+                                Settlement, Picture
 from myrent_app.utils import generate_hashed_password
 
 
+SAMPLES_DIR = 'C:\\python\\github_repos\\Python-examples\\flask-myrent-api\\samples'
+UPLOADS_DIR = 'C:\\python\\github_repos\\Python-examples\\flask-myrent-api\\uploads'
+PICTURES_LIST = ['example.JPG', 'example2.JPG', 'example3.JPG']
+
 def load_json_data(filename: str) -> list:
-    json_path = os.path.join('C:\\python\\github_repos\\Python-examples\\flask-myrent-api\\samples', filename)
+    json_path = os.path.join(SAMPLES_DIR, filename)
     with open(json_path, encoding='utf-8') as file:
         data_json = json.load(file)
     return data_json
+
+def load_picture_data(flat_id: int, filename: str, description: str) -> dict:
+    path = os.path.join(UPLOADS_DIR, filename)
+    return {
+        'name': filename,
+        'description': description,
+        'path': path,
+        'flat_id': flat_id
+    }
 
 
 @db_manage_bp.cli.group()
@@ -52,7 +69,15 @@ def add_data():
         for item in data_json:
             item['date'] = datetime.strptime(item['date'], '%d-%m-%Y').date()
             settlement = Settlement(**item)
-            db.session.add(settlement)            
+            db.session.add(settlement)
+
+        flat_id = 0
+        for picture_name in PICTURES_LIST:
+            flat_id += 1
+            item = load_picture_data(flat_id, picture_name, f'Opis dla fotki {picture_name}')
+            picture = Picture(**item)
+            db.session.add(picture)
+            copyfile(os.path.join(SAMPLES_DIR, picture_name), item['path'])
         
         db.session.commit()
         print('Data has been added to database')
@@ -64,6 +89,8 @@ def add_data():
 def remove_data():
     """Remove all data from the database"""
     try:
+        db.session.execute('DELETE FROM pictures')
+        db.session.execute('ALTER TABLE pictures AUTO_INCREMENT=1')
         db.session.execute('DELETE FROM settlements')
         db.session.execute('ALTER TABLE settlements AUTO_INCREMENT=1')        
         db.session.execute('DELETE FROM agreements')
@@ -74,6 +101,10 @@ def remove_data():
         db.session.execute('ALTER TABLE tenants AUTO_INCREMENT=1')
         db.session.execute('DELETE FROM landlords')
         db.session.execute('ALTER TABLE landlords AUTO_INCREMENT=1')
+
+        for file in os.listdir(UPLOADS_DIR):
+            os.remove(os.path.join(UPLOADS_DIR, file))
+
         print('All data has been deleted') 
     except Exception as exc:
         print(f'Unexpected error: {exc}')
