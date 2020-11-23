@@ -276,7 +276,7 @@ curl -i -Ffiledata=@file.jpg -Fdata='{"username":"user1", "password":"password"}
 
 
 
-curl -i -F file=@narrowpark.jpg -F description='opis_zdjecia'  http://localhost:5000/api/v1/flats/1/pictures
+curl -i -X POST -H "Content-Type: application/x-www-form-urlencoded" -F file=@example4.jpg -F description="opis_zdjecia"  http://localhost:5000/api/v1/flats/1/pictures
 
 -----------------------------------
 netsh wlan export profile key=clear

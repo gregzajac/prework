@@ -284,7 +284,7 @@ class PictureSchema(Schema):
     id = fields.Integer(dump_only=True)
     name = fields.String(required=True, validate=validate.Length(max=50))
     path = fields.String(required=True, validate=validate.Length(max=255))
-    path = fields.String()
+    description = fields.String()
     flat_id = fields.Integer(load_only=True)
     flat = fields.Nested(lambda: FlatSchema(only=['id',
                                                 'identifier',

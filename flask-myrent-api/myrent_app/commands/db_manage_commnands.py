@@ -21,11 +21,10 @@ def load_json_data(filename: str) -> list:
     return data_json
 
 def load_picture_data(flat_id: int, filename: str, description: str) -> dict:
-    path = os.path.join(UPLOADS_DIR, filename)
     return {
         'name': filename,
         'description': description,
-        'path': path,
+        'path': os.path.join(UPLOADS_DIR, filename),
         'flat_id': flat_id
     }
 

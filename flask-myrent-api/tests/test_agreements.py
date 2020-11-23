@@ -193,10 +193,12 @@ def test_create_agreement(client, tenant, flat_data, agreement_data, landlord_to
     assert response_data['data']['deposit_value'] == agreement_data['deposit_value']
     assert response_data['data']['description'] == agreement_data['description']
     assert response_data['data']['flat'] == {
+                                            'id': 1,
                                             'identifier': flat_data['identifier'],
                                             'address': flat_data['address']
                                         }
     assert response_data['data']['tenant'] == {
+                                            'id': 1,
                                             'identifier': tenant['identifier'],
                                             'first_name': tenant['first_name'],
                                             'last_name': tenant['last_name']
@@ -327,10 +329,12 @@ def test_update_agreement(client, flat, tenant, agreement, landlord_token):
     assert response_data['data']['deposit_value'] == updated_agreement['deposit_value']
     assert response_data['data']['description'] == updated_agreement['description']
     assert response_data['data']['flat'] == {
+                                            'id': 1,
                                             'identifier': flat['identifier'],
                                             'address': flat['address']
                                         }
     assert response_data['data']['tenant'] == {
+                                            'id': 1,
                                             'identifier': tenant['identifier'],
                                             'first_name': tenant['first_name'],
                                             'last_name': tenant['last_name']

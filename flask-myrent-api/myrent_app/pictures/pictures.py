@@ -74,9 +74,9 @@ def add_picture(landlord_id: int, flat_id: int):
         abort(409, description=f'Picture with name {file.filename} already exists')
 
     filename = secure_filename(file.filename)
-    target = current_app.config.get('UPLOAD_FOLDER') / filename
+    target = os.path.join(current_app.config.get('UPLOAD_FOLDER'), filename)
 
-    picture = Picture(name=filename, path=str(target), flat_id=flat_id)    
+    picture = Picture(name=filename, path=str(target), flat_id=flat_id)
     if description is not None:
         picture.description = description
 

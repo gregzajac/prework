@@ -97,6 +97,7 @@ def test_get_landlord_tenant(client, sample_data):
     assert response_data['data']['address'] == 'Adres 3, ulica1, 3/5'
     assert response_data['data']['description'] == 'Opis 6'
     assert response_data['data']['landlord'] == {
+                                                    'id': 3,
                                                     'identifier': 'landlord3',
                                                     'first_name': 'Irena',
                                                     'last_name': 'Kowalska'
@@ -178,6 +179,7 @@ def test_create_tenant_with_landlord_token(client, landlord, landlord_token):
     assert response_data['data']['last_name'] == tenant['last_name']
     assert response_data['data']['phone'] == tenant['phone']
     assert response_data['data']['landlord'] == {
+                                            'id': 1,
                                             'identifier': landlord['identifier'],
                                             'first_name': landlord['first_name'],
                                             'last_name': landlord['last_name']

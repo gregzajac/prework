@@ -18,6 +18,7 @@ class Config:
     CORS_HEADERS = 'Content-Type'
     ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
     MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+    UPLOAD_FOLDER = ''
 
 
 class DevelopmentConfig(Config):
@@ -30,6 +31,7 @@ class TestingConfig(Config):
     SQLALCHEMY_DATABASE_URI = f'sqlite:///{DB_FILE_PATH}'
     DEBUG = True
     TESTING = True
+    UPLOAD_FOLDER = base_dir / 'tests' / 'uploads'
 
 
 config = {

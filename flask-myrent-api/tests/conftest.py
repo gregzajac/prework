@@ -1,4 +1,5 @@
 import pytest
+import os
 from myrent_app import create_app, db
 from myrent_app.commands.db_manage_commnands import add_data
 
@@ -175,3 +176,16 @@ def agreement(client, flat, tenant, agreement_data, landlord_token):
                     'Authorization': f'Bearer {landlord_token}'
                 })
     return agreement_data
+
+SAMPLES_DIR = 'C:\\python\\github_repos\\Python-examples\\flask-myrent-api\\samples'
+UPLOADS_DIR = 'C:\\python\\github_repos\\Python-examples\\flask-myrent-api\\tests\\uploads'
+
+@pytest.fixture
+def file_example():
+    file_example = {
+        'name': 'example.JPG',
+        'source': os.path.join(SAMPLES_DIR, 'example.JPG'),
+        'path': os.path.join(UPLOADS_DIR, 'example.JPG'),
+        'description': 'picture description'
+    }
+    return file_example

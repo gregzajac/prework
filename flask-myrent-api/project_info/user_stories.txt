@@ -1,13 +1,9 @@
-- Jako właściciel chcę dodawać zdjęcia z opisami do danego mieszkania, by w bardziej aktrakcyjny sposób zaprezentować swoje mieszkania na stronie internetowej.
+User stories:
 
-- Jako właściciel chcę tworzyć na umowie najmu rozliczenia (naliczenia oraz wpłaty), by kontrolować saldo rozliczeń z najemcami oraz by najemcy mieli łatwy wgląd do bieżących rozliczeń na danej umowie.
-- Jako właściciel chcę wystawić na platformie swoje mieszkania na wynajem z danymi kontaktowymi do siebie i krótkim opisem swojej osoby, by najemcy mogli wybrać mieszkanie do najmu
 
 ------------------------------
 
-
 In process:
-- Jako najemca chcę po zalogowaniu się do platformy widzieć listę wynajmowanych mieszkań, podpisane umowy i rozliczenia prowadzone z właścicielem (zrobione mieszkania, wynajmujący i umowy)
 
 
 Done:
@@ -19,3 +15,8 @@ Done:
 - Jako właściciel chcę zarejestrować najemcę, z którym podpisałem umowę
 - Jako najemca chcę modyfikować swoje dane profilowe (hasło, imię, nazwisko, telefon, adres)
 - Jako właściciel chcę zarządzać umowami najmu (dodawać, modyfikować, usuwać), by usprawnić proces zarządzania oraz by najemcy mieli na stronie internetowej łatwy wgląd do danych obowiązującej umowy.
+- Jako właściciel chcę dodawać zdjęcia z opisami do danego mieszkania, by w bardziej aktrakcyjny sposób zaprezentować swoje mieszkania na stronie internetowej.
+
+- Jako właściciel chcę tworzyć na umowie najmu rozliczenia (naliczenia oraz wpłaty), by kontrolować saldo rozliczeń z najemcami oraz by najemcy mieli łatwy wgląd do bieżących rozliczeń na danej umowie.
+- Jako właściciel chcę wystawić na platformie swoje mieszkania na wynajem z danymi kontaktowymi do siebie i krótkim opisem swojej osoby, by najemcy mogli wybrać mieszkanie do najmu
+- Jako najemca chcę po zalogowaniu się do platformy widzieć listę wynajmowanych mieszkań, podpisane umowy i rozliczenia prowadzone z właścicielem (zrobione mieszkania, wynajmujący i umowy)
