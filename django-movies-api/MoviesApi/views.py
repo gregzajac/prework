@@ -4,17 +4,32 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
+from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Movie, Rating
 from .serializers import MovieSerializer, RatingSerializer, UserSerializer
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Object-level permission to only allow owners of an object to edit it.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.username == request.user.username
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     authentication_classes = (TokenAuthentication, )
+    
     permission_classes_by_action = {
         'create': [AllowAny],
+        'update': [IsAuthenticated, IsOwnerOrReadOnly],
+        'delete': [IsAuthenticated, IsOwnerOrReadOnly],
         'default': [IsAuthenticated]
     }
 
@@ -33,6 +48,20 @@ class MovieViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
 
+    # permission_classes_by_action = {
+    #     'update': [IsAuthenticated, IsOwnerOrReadOnly],
+    #     'delete': [IsAuthenticated, IsOwnerOrReadOnly],
+    #     'default': [IsAuthenticated]
+    # }
+
+    # def get_permissions(self):
+    #     try:
+    #         # return permission_classes depending on `action` 
+    #         return [permission() for permission in self.permission_classes_by_action[self.action]]
+    #     except KeyError: 
+    #         # action is not set return default permission_classes
+    #         return [permission() for permission in self.permission_classes_by_action['default']]
+
     @action(methods=['POST'], detail=True)
     def rate_movie(self, request, pk=None):
 
@@ -41,6 +70,7 @@ class MovieViewSet(viewsets.ModelViewSet):
             movie = Movie.objects.get(id=pk)
             stars = request.data['stars']
             user = request.user
+            print('user: ', user, user.username, user.id)
 
             try:
                 rating = Rating.objects.get(user=user.id, movie=movie.id)
@@ -74,6 +104,21 @@ class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
+
+    # permission_classes_by_action = {
+    #     'update': [IsAuthenticated, IsOwnerOrReadOnly],
+    #     'delete': [IsAuthenticated, IsOwnerOrReadOnly],
+    #     'default': [IsAuthenticated]
+    # }    
+
+    # def get_permissions(self):
+    #     try:
+    #         # return permission_classes depending on `action` 
+    #         return [permission() for permission in self.permission_classes_by_action[self.action]]
+    #     except KeyError: 
+    #         # action is not set return default permission_classes
+    #         return [permission() for permission in self.permission_classes_by_action['default']]
+
 
     def update(self, request, *args, **kwargs):
         response = {'message': 'You can not update rating like that'}
